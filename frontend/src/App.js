@@ -8,6 +8,7 @@ import Signup from "./pages/Signup";
 import { createBrowserRouter } from "react-router-dom";
 import HouseDetails from "./components/HouseDetails";
 import { RouterProvider } from "react-router";
+import SendRequest from "./pages/SendRequest";
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -18,6 +19,14 @@ function App() {
     {
       path: "/housedetails",
       element: <HouseDetails />,
+    },
+    {
+      path: "/signup",
+      element: <Signup />,
+    },
+    {
+      path: "/sendrequest",
+      element: <SendRequest />,
     },
   ]);
 
