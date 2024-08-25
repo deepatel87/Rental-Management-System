@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Header() {
     const [navbar, setNavbar] = useState(false);
@@ -57,48 +58,47 @@ export default function Header() {
                     >
                         <ul className="items-center justify-center space-y-8 md:flex md:space-x-6 md:space-y-0">
                             <li className="text-white hover:text-indigo-200">
-                                <a href="javascript:void(0)">Home</a>
+                                <a>Home</a>
                             </li>
                             <li className="text-white hover:text-indigo-200">
-                                <a href="javascript:void(0)">Pay Rent</a>
+                                <a>Pay Rent</a>
                             </li>
                             <li className="text-white hover:text-indigo-200">
-                                <a href="javascript:void(0)">About Us</a>
+                                <a>About Us</a>
                             </li>
                             <li className="text-white hover:text-indigo-200">
-                                <a href="javascript:void(0)">Contact Us</a>
+                                <a>Contact Us</a>
                             </li>
                         </ul>
 
                         <div className="mt-3 space-y-2 lg:hidden md:inline-block">
-                    <a
-                        href="javascript:void(0)"
+                    <Link to ="/signup"
                         className="inline-block w-full px-4 py-2 text-center text-white bg-gray-600 rounded-md shadow hover:bg-gray-800"
                     >
                         Sign in
-                    </a>
-                    <a
-                        href="javascript:void(0)"
+                    </Link>
+                    <Link
+                        to="/login"
                         className="inline-block w-full px-4 py-2 text-center text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
                     >
                         Sign up
-                    </a>
+                    </Link>
                 </div>
                     </div>
                 </div>
                 <div className="hidden space-x-2 md:inline-block">
-                    <a
-                        href="javascript:void(0)"
+                    <Link
+                        to="/login"
                         className="px-4 py-2 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800"
                     >
                         Sign in
-                    </a>
-                    <a
-                        href="javascript:void(0)"
+                    </Link>
+                    <Link
+                        to="/signup"
                         className="px-4 py-2 text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
                     >
                         Sign up
-                    </a>
+                    </Link>
                 </div>
             </div>
         </nav>
