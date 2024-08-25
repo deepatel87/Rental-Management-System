@@ -2,16 +2,12 @@ import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 
+
 const Login = () => {
 
   const inputRefs = useRef({});
-  const [error , setError] = useState('')
 
-//   if(isLoggedIn){
-//     console.log("hiii")
-//     console.log(isLoggedIn) 
-//     navigate("/") ;
-//   }
+
 
 
   function loginHandler() {
@@ -20,79 +16,43 @@ const Login = () => {
     const password = inputRefs.current['password'].value;
 
     if (!email || !password) {
-      setError("All Fields Are Required")
       return;
     }
-    setError("")
-    // login(email, password);
+
+
+    login(email , password)
+
   }
 
-//   async function login(email, password) {
-//     const response = await fetch('http://localhost:4000/api/v1/auth/login', {
-//       method: 'post',
-//       headers: {
-//         'Content-Type': 'application/json',
+  async function login(email, password) {
+    const response = await fetch('http://localhost:4000/api/v1/auth/login', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
         
-//       },
-//       body: JSON.stringify({ email, password }),
-//     });
+      },
+      body: JSON.stringify({email: email, password:password }),
+    });
 
-//     const resp = await response.json();
+    const resp = await response.json();
 
-//     if (resp.success) {
-//       localStorage.setItem('db_token' , resp.token)
-//       localStorage.setItem('email' , resp.email)
-//       dispatch(toggleLoggedin())
-//       navigate("/");
-//       window.location.reload()
-//     } else {
-//        setError(resp.message)
-//     }
-//   }
+    if (resp.success) {
+      localStorage.setItem('db_token' , resp.token)
+      console.log("hiiiiiiiiii")
 
-//   const handleGoogleLoginSuccess = async (credentialResponse) => {
-//     try {
-//       const { credential } = credentialResponse;
-      
-//       // Send the token to your backend for verification
-//       const response = await fetch('http://localhost:4000/api/v1/auth/google/token', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ token: credential }),
-//       });
-  
-//       const resp = await response.json();
-//       console.log(resp)
-  
-//       if (resp.token) {
-//         localStorage.setItem('db_token', resp.token);
-//         localStorage.setItem('email' , resp.email)
+    } else {
+      console.log(resp)
+      //tost error
+    }
+  }
 
-//         navigate("/");
-//         dispatch(toggleLoggedin())
-
-//       } else {
-//         console.log('Login Failed');
-//       }
-//     } catch (error) {
-//       console.log('Login Failed', error);
-//     }
-//   };
-
-//   const handleGoogleLoginError = () => {
-//     console.log('Login Failed');
-//   };
+ 
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#bfdbf7]">
       <div className="w-full max-w-md p-8 space-y-6 bg-[#466b90] rounded-lg shadow-md">
         <h2 className="text-3xl font-bold text-center text-white">Login</h2>
-        <div className="text-center text-red-500">
-
-<p>{error}</p>
-</div>
+     
         <div>
           <label htmlFor="email-or-phone" className="block text-sm font-medium text-white">
             Email or Phone Number
@@ -147,18 +107,15 @@ const Login = () => {
         <div className="mt-6 text-center text-white">
           <p>
             Don't have an account?{' '}
-            <p to="/signup" className="text-indigo-400 hover:underline">
+            <Link to="/signup" className="text-indigo-400 hover:underline">
               Create Account
-            </p>
+            </Link>
           </p>
         </div>
 
-<div className="mt-4 text-center text-red-500">
-          {/* This message should appear conditionally if the credentials are wrong */}
-          {/* Invalid email or password. Please try again. */}
+
         </div>
       </div>
-    </div>
   );
 };
 

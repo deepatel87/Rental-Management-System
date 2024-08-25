@@ -19,25 +19,18 @@ function App() {
     {
       path: "/housedetails",
       element: <HouseDetails />,
-    },
+    },{
+    path:"/login" , 
+    element:<Login></Login>
+    } ,
     {
-      path: "/signup",
-      element: <Signup />,
-    },
-    {
-      path: "/sendrequest",
-      element: <SendRequest />,
-    },
+      path:"/signup" ,
+      element:<Signup></Signup>
+    }
   ]);
 
   return (
-    // <>
-    //   <Home />
-    //   {/* <Header></Header> */}
-    //   {/* <Login></Login> */}
-    //   {/* <Signup></Signup> */}
-    //   {/* <HouseCard houseData={houseData} /> */}
-    // </>
+   
     <RouterProvider router={appRouter} />
   );
 }

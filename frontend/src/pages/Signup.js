@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { MdOutlineAddAPhoto } from "react-icons/md";
+import { Link } from 'react-router-dom';
 
 const Signup = () => {
   const inputRefs = useRef({});
@@ -13,8 +13,9 @@ const Signup = () => {
     const aadhaarNumber = inputRefs.current['aadhaar-number'].value;
     const otp = inputRefs.current['otp'].value;
 
-    if (!fullName || !email || !contactNumber || !aadhaarNumber || !otp) {
+    if (!fullName || !email || !contactNumber || !aadhaarNumber) {
       setError('All fields are required');
+      console.log(12)
       return null;
     }
 
@@ -23,21 +24,61 @@ const Signup = () => {
 
   async function submitHandler() {
     const data = checkParams();
-    // Uncomment and adjust the API call as needed
-    // const response = await fetch('http://localhost:4000/api/v1/auth/signup', {
-    //   method: 'post',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({ email: data.email, name: data.fullName, contactNumber: data.contactNumber, aadhaarNumber: data.aadhaarNumber, otp: data.otp })
-    // });
-    // const resp = await response.json();
-    // if (resp.success) {
-    //   navigate("/");
-    // } else {
-    //   setError(resp.message);
-    // }
+    const response = await fetch('http://localhost:4000/api/v1/auth/signup', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: data.email, fullName: data.fullName, contactNumber: data.contactNumber, aadhaarNumber: data.aadhaarNumber, otp: data.otp })
+    });
+    const resp = await response.json();
+    if (resp.success) {
+    } else {
+      setError(resp.message);
+    }
   }
+  const getOTPHandler = async() => {
+    console.log("gsvcgsgggggggggggggggggggggg")
+  
+
+    try{
+      const data = checkParams()
+      console.log(data)
+      
+  
+      if(!data){
+        return
+      }
+
+      setError("")
+  
+
+    const response = await fetch('http://localhost:4000/api/v1/auth/sendOTP',  {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: data.email} ) 
+    });
+    const resp = await response.json()
+    console.log(resp)
+    if(!resp.success){
+      setError(resp.message)
+      console.log(34)
+
+      
+    } else {
+      ////toas
+      console.log("sent")
+    }
+    
+ 
+  }catch(err){
+    console.log(err)
+  }
+
+     
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#bfdbf7]">
@@ -154,9 +195,10 @@ const Signup = () => {
         </div>
 
         <div className="mt-4 grid grid-cols-3 gap-2 items-center">
-          <button
+          <button 
             type="button"
             className="col-span-1 px-4 py-2 font-bold text-white outline-none bg-[#0f2740] border-gray-300 rounded-md hover:bg-[#1a3241] focus:ring focus:ring-indigo-400"
+            onClick={getOTPHandler }
           >
             Get OTP
           </button>
@@ -192,9 +234,9 @@ const Signup = () => {
         <div className="mt-6 text-center text-white">
           <p>
             Already have an account?{' '}
-            <p to="/login" className="text-indigo-400 hover:underline">
+            <Link to="/login" className="text-indigo-400 hover:underline">
               Login
-            </p>
+            </Link>
           </p>
         </div>
       </div>
@@ -202,4 +244,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Signup; 
