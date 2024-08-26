@@ -33,12 +33,44 @@ const UserProfile = () => {
               placeholder="Email"
             />
           </div>
+          <div>
+            <label className="block font-semibold mb-2">Aadhar No:</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded w-full p-2"
+              placeholder="Aadhar No"
+            />
+          </div>
           <div className="col-span-2">
             <label className="block font-semibold mb-2">Address:</label>
             <textarea
               className="border border-gray-300 rounded w-full p-2"
               placeholder="Address"
             ></textarea>
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">Relative No.:</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded w-full p-2"
+              placeholder="Relative No."
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">Relation:</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded w-full p-2"
+              placeholder="Relation"
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">Occupation:</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded w-full p-2"
+              placeholder="Occupation"
+            />
           </div>
           <div>
             <label className="block font-semibold mb-2">No. of People:</label>
@@ -48,20 +80,15 @@ const UserProfile = () => {
               placeholder="No. of People"
             />
           </div>
-          <div>
-            <label className="block font-semibold mb-2">Aadhar No:</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded w-full p-2"
-              placeholder="Aadhar No"
-            />
-          </div>
           <div className="col-span-2 flex justify-center">
             <div className="w-24 h-24 border border-gray-300 rounded bg-gray-100 flex items-center justify-center">
               User Photo
             </div>
           </div>
         </div>
+        <button className="px-7 py-3 bg-blue-500 hover:bg-blue-400 text-lg font-semibold rounded-lg w-full mt-4 text-white">
+          Save
+        </button>
       </div>
 
       {/* Payment History Section */}

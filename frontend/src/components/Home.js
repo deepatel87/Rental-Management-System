@@ -1,7 +1,14 @@
+import { useState } from "react";
 import Header from "./Header";
 import HouseCard from "./HouseCard";
+import { useDispatch, useSelector } from "react-redux";
+import { addUser } from "../redux/userSlice";
 
 const Home = () => {
+  const dispatch = useDispatch();
+  dispatch(addUser("admin"));
+  const userType = useSelector((store) => store.user.user);
+
   const houseData = [
     {
       house_pic:
@@ -123,7 +130,7 @@ const Home = () => {
   ];
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-      <Header />
+      <Header userType={userType} />
       <div className="w-11/12 mx-auto mt-10 pb-16">
         <h1 className="text-4xl font-extrabold text-center text-indigo-800 mb-10 tracking-wide">
           Luxurious Homes for Rent

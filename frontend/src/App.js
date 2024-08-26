@@ -10,6 +10,7 @@ import HouseDetails from "./components/HouseDetails";
 import { RouterProvider } from "react-router";
 import SendRequest from "./pages/SendRequest";
 import UserProfile from "./components/UserProfile";
+import Admin from "./components/Admin";
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -36,6 +37,10 @@ function App() {
     {
       path: "/userprofile",
       element: <UserProfile></UserProfile>,
+    },
+    {
+      path: "/admin",
+      element: <Admin></Admin>,
     },
   ]);
 
