@@ -9,6 +9,8 @@ import { createBrowserRouter } from "react-router-dom";
 import HouseDetails from "./components/HouseDetails";
 import { RouterProvider } from "react-router";
 import SendRequest from "./pages/SendRequest";
+import UserProfile from "./components/UserProfile";
+import Admin from "./components/Admin";
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -19,20 +21,30 @@ function App() {
     {
       path: "/housedetails",
       element: <HouseDetails />,
-    },{
-    path:"/login" , 
-    element:<Login></Login>
-    } ,
+    },
     {
-      path:"/signup" ,
-      element:<Signup></Signup>
-    }
+      path: "/login",
+      element: <Login></Login>,
+    },
+    {
+      path: "/signup",
+      element: <Signup></Signup>,
+    },
+    {
+      path: "/sendrequest",
+      element: <SendRequest></SendRequest>,
+    },
+    {
+      path: "/userprofile",
+      element: <UserProfile></UserProfile>,
+    },
+    {
+      path: "/admin",
+      element: <Admin></Admin>,
+    },
   ]);
 
-  return (
-   
-    <RouterProvider router={appRouter} />
-  );
+  return <RouterProvider router={appRouter} />;
 }
 
 export default App;
