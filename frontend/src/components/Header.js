@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Header() {
-    const [navbar, setNavbar] = useState(false);
+  const [navbar, setNavbar] = useState(false);
 
     return (
         <nav className="w-full bg-gradient-to-bl from-[#3d5a80] to-[#98c1d9] shadow">
