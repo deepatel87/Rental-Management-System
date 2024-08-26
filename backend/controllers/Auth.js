@@ -111,8 +111,10 @@ exports.signUp = async(req , res)=>{
             email ,
             contactNumber , 
             password:hashedPassword ,
-            addhar1:"url" ,
-            aadhar2:"url"
+            addhar:"url" ,
+            photo:"url" ,
+            isAdmin:false , 
+            roomDetails:null
 
 
 
@@ -192,4 +194,193 @@ exports.login = async(req  , res)=>{
         })
     }
 }
+
+
+ exports.getUser = async (req, res) => {
+    try {
+        const token = req.header('Authorization').split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        console.log(token)
+
+        if (!decoded    ) {
+            return res.status(404).json({
+                success: false,
+                message: "Authentication Failed. Kindly Log In."
+            });
+        }
+
+        const id = req.user.userId || req.user.id;
+        const user = await User.findById(id)
+                                        .populate("roomDetails")
+                                        .exec()
+           
+
+           
+
+
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "No such user exists."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: user
+        });
+
+    } catch (err) {
+        console.log(err);
+
+        return res.status(400).json({
+            success: false,
+            message: "Couldn't fetch user data."
+        });
+    }
+};
+
+
+
+exports.createProfile = async (req, res) => {
+    try {
+        const { gender, birthdate, sexualOrientation, instagram, snapchat, telegram, about, city, state, country, lat, lon } = req.body;
+
+        // Validate input
+        if (!gender || !birthdate || !sexualOrientation || (!instagram && !snapchat && !telegram) || !about || !city || !state || !country || !lat || !lon) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid or missing parameters"
+            });
+        }
+
+        const token = req.header('Authorization')?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: "Authorization token missing" });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded) {
+            return res.status(401).json({ message: "Invalid token" });
+        }
+
+        req.user = decoded;
+        const id = req.user.userId || req.user.id;
+        console.log(id);
+
+        const user = await User.findById(id).populate('datingProfile');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.datingProfile) {
+            return res.status(400).json({ message: "Profile already exists" });
+        }
+
+        const profileDetails = new Profile({
+            age: 12,  // Assuming age needs to be calculated or set elsewhere
+            gender,
+            birthdate,
+            sexualOrientation,
+            instagram,
+            snapchat,
+            telegram,
+            about,
+            city,
+            state,
+            country,
+            lat,
+            lon
+        });
+
+        await profileDetails.save();
+
+        user.datingProfile = profileDetails._id;
+        await user.save();
+
+        return res.status(201).json({
+            success: true,
+            message: "Profile created successfully",
+            profileDetails
+        });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            success: false,
+            message: "Profile could not be created"
+        });
+    }
+};
+exports.getUser = async (req, res) => {
+    try {
+        console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+        const token = req.header('Authorization').split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        console.log(token)
+
+        if (!decoded    ) {
+            return res.status(404).json({
+                success: false,
+                message: "Authentication Failed. Kindly Log In."
+            });
+        }
+
+        const id = req.user.userId || req.user.id;
+        const user = await User.findById(id)
+            .populate({
+                path: 'playLists',
+                populate: {
+                    path: 'songs',
+                    select: '-_id' 
+                },
+                select: '-_id' 
+            })
+            .populate({
+                path: 'likedSongs', 
+                select: '-_id'
+            })
+            .populate({
+                path: 'datingProfile',
+                select: '-_id' 
+            })
+            .populate({
+                path:"history" ,
+                select:"-_id"
+            })
+            .select('-_id -password') 
+            .exec();
+
+            console.log("hii")
+            console.log(user)
+            
+
+
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "No such user exists."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: user
+        });
+
+    } catch (err) {
+        console.log(err);
+
+        return res.status(400).json({
+            success: false,
+            message: "Couldn't fetch user data."
+        });
+    }
+};
+
+
 
