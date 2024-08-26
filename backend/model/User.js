@@ -14,11 +14,11 @@ const UserSchema = new mongoose.Schema({
     contactNumber:{
         type:String , 
     } ,
-    aadhar1:{
+    aadhar:{
         type:String ,
 
     }
-     ,aadhar2:{
+     ,image:{
         type:String ,
         
     }
@@ -26,6 +26,8 @@ const UserSchema = new mongoose.Schema({
     roomDetails:{
         type:mongoose.Schema.Types.ObjectId 
     }
+    
+    
    
     
 })
