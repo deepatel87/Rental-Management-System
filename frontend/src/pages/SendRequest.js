@@ -6,11 +6,7 @@ const SendRequest = () => {
   const [error, setError] = useState("");
 
   function checkParams() {
-    const fullName = inputRefs.current["full-name"].value;
-    const email = inputRefs.current["email"].value;
-    const contactNumber = inputRefs.current["contact-number"].value;
     const aadhaarNumber = inputRefs.current["aadhaar-number"].value;
-    const otp = inputRefs.current["otp"].value;
     const relativeNo = inputRefs.current["relative-number"].value;
     const relation = inputRefs.current["relation"].value;
     const work = inputRefs.current["work"].value;
@@ -18,11 +14,7 @@ const SendRequest = () => {
     const people = inputRefs.current["no-of-people"].value;
 
     if (
-      !fullName ||
-      !email ||
-      !contactNumber ||
       !aadhaarNumber ||
-      !otp ||
       !relativeNo ||
       !relation ||
       !work ||
@@ -33,7 +25,7 @@ const SendRequest = () => {
       return null;
     }
 
-    return { fullName, email, contactNumber, aadhaarNumber, otp };
+    return { relativeNo, relation, work, occupation, people, aadhaarNumber };
   }
 
   async function submitHandler() {
@@ -62,57 +54,6 @@ const SendRequest = () => {
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="full-name"
-              className="block text-sm font-medium text-white"
-            >
-              Full Name
-            </label>
-            <input
-              id="full-name"
-              name="full-name"
-              type="text"
-              required
-              placeholder="Enter your full name"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["full-name"] = el)}
-            />
-          </div>
-          <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-white"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              placeholder="Enter your email"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["email"] = el)}
-            />
-          </div>
-          <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="contact-number"
-              className="block text-sm font-medium text-white"
-            >
-              Contact Number
-            </label>
-            <input
-              id="contact-number"
-              name="contact-number"
-              type="tel"
-              required
-              placeholder="Enter your contact number"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["contact-number"] = el)}
-            />
-          </div>
           <div className="flex-1 min-w-[250px]">
             <label
               htmlFor="aadhaar-number"
@@ -252,24 +193,6 @@ const SendRequest = () => {
               id="img-upload"
             />
           </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-3 gap-2 items-center">
-          <button
-            type="button"
-            className="col-span-1 px-4 py-2 font-bold text-white outline-none bg-[#0f2740] border-gray-300 rounded-md hover:bg-[#1a3241] focus:ring focus:ring-indigo-400"
-          >
-            Get OTP
-          </button>
-          <input
-            id="otp"
-            name="otp"
-            type="text"
-            required
-            placeholder="Enter OTP"
-            className="col-span-2 px-3 py-2 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-            ref={(el) => (inputRefs.current["otp"] = el)}
-          />
         </div>
 
         <div>

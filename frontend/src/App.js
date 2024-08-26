@@ -9,6 +9,7 @@ import { createBrowserRouter } from "react-router-dom";
 import HouseDetails from "./components/HouseDetails";
 import { RouterProvider } from "react-router";
 import SendRequest from "./pages/SendRequest";
+import UserProfile from "./components/UserProfile";
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -19,20 +20,26 @@ function App() {
     {
       path: "/housedetails",
       element: <HouseDetails />,
-    },{
-    path:"/login" , 
-    element:<Login></Login>
-    } ,
+    },
     {
-      path:"/signup" ,
-      element:<Signup></Signup>
-    }
+      path: "/login",
+      element: <Login></Login>,
+    },
+    {
+      path: "/signup",
+      element: <Signup></Signup>,
+    },
+    {
+      path: "/sendrequest",
+      element: <SendRequest></SendRequest>,
+    },
+    {
+      path: "/userprofile",
+      element: <UserProfile></UserProfile>,
+    },
   ]);
 
-  return (
-   
-    <RouterProvider router={appRouter} />
-  );
+  return <RouterProvider router={appRouter} />;
 }
 
 export default App;
