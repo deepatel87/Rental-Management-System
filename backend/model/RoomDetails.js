@@ -6,17 +6,9 @@ const RoomDetails = new mongoose.Schema({
 
     tenant:{
         type:mongoose.Schema.Types.ObjectId ,
-        ref:"User"
+        ref:"Tenant"
     } , 
-    roomNo:{
-        type:String 
-    } ,
-    buildingName:{
-        type:String
-    } ,
-    area:{
-        type:String ,
-    } , 
+   
     numberOfPeople:{
         type:Number , 
     } ,
@@ -24,9 +16,36 @@ const RoomDetails = new mongoose.Schema({
     rentHistory:[{
         type:mongoose.Schema.Types.ObjectId ,
         ref:"RentDetails"
+    }] ,
+
+    image:{
+        type:String 
+
+    } ,
+    details:{
+        type:String ,
+
+    } ,
+    additionalDetails:{
+        type:String ,
+
+    } ,
+    rent:{
+        type:String ,
+
+    } , 
+    type:{
+        type:String ,
+
+    } ,
+    isAvailable:{
+        type:String ,
+        enum:["Available" , "Not Available"] ,
+        default:"Not Available" ,
+
     }
 
         
-    ]
+    
 })
 module.exports = mongoose.model("RoomDetails" ,RoomDetails )
