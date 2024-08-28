@@ -1,9 +1,11 @@
 import React, { useRef, useState } from "react";
 import { MdOutlineAddAPhoto } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 const SendRequest = () => {
   const inputRefs = useRef({});
   const [error, setError] = useState("");
+  const navigate = useNavigate()
 
   function checkParams() {
     const fullName = inputRefs.current["full-name"].value;
@@ -38,20 +40,20 @@ const SendRequest = () => {
 
   async function submitHandler() {
     const data = checkParams();
-    // Uncomment and adjust the API call as needed
-    // const response = await fetch('http://localhost:4000/api/v1/auth/signup', {
-    //   method: 'post',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({ email: data.email, name: data.fullName, contactNumber: data.contactNumber, aadhaarNumber: data.aadhaarNumber, otp: data.otp })
-    // });
-    // const resp = await response.json();
-    // if (resp.success) {
-    //   navigate("/");
-    // } else {
-    //   setError(resp.message);
-    // }
+    const response = await fetch('http://localhost:4000/api/v1/auth/signup', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json' ,
+        "Authorization":`Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({ email: data.email, name: data.fullName, contactNumber: data.contactNumber, aadhaarNumber: data.aadhaarNumber, otp: data.otp })
+    });
+    const resp = await response.json();
+    if (resp.success) {
+      navigate("/");
+    } else {
+      setError(resp.message);
+    }
   }
 
   return (

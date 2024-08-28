@@ -1,6 +1,8 @@
 const express = require("express")
 const app = express() 
 const cors = require("cors");
+const cronJobs = require('./cronJobs'); 
+
 require("dotenv").config()
 
 
@@ -11,7 +13,6 @@ const userRoutes = require("./routes/User")
 
  
   
-  // Middleware setup
   app.use(express.json());
   app.use(cors({ origin: '*', credentials: true })); 
 

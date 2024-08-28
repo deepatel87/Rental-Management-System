@@ -1,15 +1,19 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-const RentDetails = new mongoose.Schema({
-    amount:{
-        type:Number , 
-    } ,
-    dateOfPayment:{
-        type:Date
-    } ,
+const RentDetailsSchema = new mongoose.Schema({
+    amount: {
+        type: Number,
+        required: true
+    },
+    dateOfPayment: {
+        type: Date,
+        default: null // Set to null if not paid yet
+    },
+    status: {
+        type: String,
+        enum: ['Paid', 'Unpaid'],
+        default: 'Unpaid'
+    }
+});
 
-
-
-})
-
-module.exports = mongoose.model("RentDetails" ,RentDetails )
+module.exports = RentDetailsSchema;

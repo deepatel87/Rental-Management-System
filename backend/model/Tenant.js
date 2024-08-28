@@ -1,19 +1,18 @@
 const mongoose = require('mongoose');
+const RentDetailsSchema = require('./RentDetails'); // Adjust the path as needed
 
 const TenantSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
     },
     room: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'RoomDetails',
-        required: true
     },
     startDate: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     endDate: {
         type: Date
@@ -22,6 +21,15 @@ const TenantSchema = new mongoose.Schema({
         type: String,
         enum: ['Active', 'Inactive'],
         default: 'Active'
+    },
+    rentDetails: {
+        type: [RentDetailsSchema],
+        default: function() {
+            return [{
+                amount: 0, 
+                status: 'Unpaid'
+            }];
+        }
     }
 });
 
