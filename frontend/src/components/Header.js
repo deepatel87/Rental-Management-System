@@ -1,8 +1,35 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Header({ userType }) {
   const [navbar, setNavbar] = useState(false);
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+
+  const navigateToHouseDetails = () => {
+    navigate("/housedetails/:add");
+  };
+
+  const [searchResult, setSearchResult] = useState([]);
+
+  const userProfile = [];
+
+  const sortedOnlyServices = Array.from(userProfile).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  ); // to sort the service data for efficient searching.
+
+  const searchUser = (e) => {
+    setSearch(e.target.value);
+    setSearchResult(
+      sortedOnlyServices.filter((service) =>
+        service.name.trim().toLowerCase().includes(search.trim().toLowerCase())
+      )
+    );
+  };
+
+  const goToUserProfile = () => {
+    navigate("/userprofile/:user");
+  };
 
   return (
     <nav className="w-full bg-gradient-to-bl from-[#3d5a80] to-[#98c1d9] shadow">
@@ -106,11 +133,35 @@ export default function Header({ userType }) {
           </>
         ) : (
           <div className="flex p-3 gap-x-3">
-            <input
-              type="text"
-              className="p-3 w-[400px] rounded-lg"
-              placeholder="Search Tenant"
-            />
+            <div className="w-[600px] relative">
+              <input
+                type="text"
+                placeholder="Search"
+                className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-md"
+                value={search}
+                onChange={searchUser}
+              />
+              {search !== "" && searchResult.length !== 0 ? (
+                <div className="flex flex-col bg-white absolute border border-gray-300 rounded-md w-full mt-3 h-64 overflow-auto scrollbar-thin scrollbar-webkit">
+                  {searchResult.map((result) => (
+                    <div
+                      key={result.id}
+                      className="flex p-3 justify-start items-center gap-x-3 cursor-pointer"
+                      onClick={() => goToUserProfile(result)}
+                    >
+                      <img
+                        src={result.image_url}
+                        alt=""
+                        className="w-20 rounded-lg"
+                      />
+                      <p className="text-gray-900">{result.name}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                search !== "" && <p className="absolute p-3 bg-white absolute border border-gray-300 rounded-md w-full mt-3 ">No Results Found</p>
+              )}
+            </div>
             <buttom className="px-7 py-3 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800 cursor-pointer">
               Search
             </buttom>
@@ -120,6 +171,12 @@ export default function Header({ userType }) {
             >
               requests
             </Link>
+            <buttom
+              className="px-7 py-3 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800 cursor-pointer"
+              onClick={navigateToHouseDetails}
+            >
+              Add Room
+            </buttom>
           </div>
         )}
       </div>

@@ -19,7 +19,7 @@ function App() {
       element: <Home />,
     },
     {
-      path: "/housedetails",
+      path: "/housedetails/:params",
       element: <HouseDetails />,
     },
     {
@@ -35,7 +35,7 @@ function App() {
       element: <SendRequest></SendRequest>,
     },
     {
-      path: "/userprofile",
+      path: "/userprofile/:params",
       element: <UserProfile></UserProfile>,
     },
     {

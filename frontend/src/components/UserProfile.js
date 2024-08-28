@@ -1,6 +1,12 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 
 const UserProfile = () => {
+  const { params } = useParams();
+  const profile = decodeURIComponent(params);
+
+  if (profile !== ":user" && profile !== ":admin")
+    return <div>Page Not Found</div>;
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 mt-8">
       <h2 className="text-2xl font-bold mb-4">User Profile</h2>
@@ -86,40 +92,55 @@ const UserProfile = () => {
             </div>
           </div>
         </div>
-        <button className="px-7 py-3 bg-blue-500 hover:bg-blue-400 text-lg font-semibold rounded-lg w-full mt-4 text-white">
-          Save
-        </button>
+        {profile === ":user" ? (
+          <button className="px-7 py-3 bg-blue-500 hover:bg-blue-400 text-lg font-semibold rounded-lg w-full mt-4 text-white">
+            Save
+          </button>
+        ) : (
+          profile === ":admin" && (
+            <div className="flex gap-x-3">
+              <button className="px-7 py-3 bg-blue-500 hover:bg-blue-400 text-lg font-semibold rounded-lg w-full mt-4 text-white">
+                Accept
+              </button>
+              <button className="px-7 py-3 bg-blue-500 hover:bg-blue-400 text-lg font-semibold rounded-lg w-full mt-4 text-white">
+                Reject
+              </button>
+            </div>
+          )
+        )}
       </div>
 
       {/* Payment History Section */}
-      <div className="bg-gray-50 p-4 rounded-lg shadow">
-        <h3 className="text-xl font-semibold mb-4">Payment History</h3>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-200 text-gray-700">
-              <th className="border p-2">Date</th>
-              <th className="border p-2">Amount</th>
-              <th className="border p-2">Payment</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border p-2">16/07/24</td>
-              <td className="border p-2">58014</td>
-              <td className="border p-2 text-green-500">Paid</td>
-            </tr>
-            <tr>
-              <td className="border p-2">16/08/24</td>
-              <td className="border p-2">14000</td>
-              <td className="border p-2">
-                <button className="bg-blue-500 text-white rounded px-4 py-2">
-                  Pay Now
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      {profile === ":user" && (
+        <div className="bg-gray-50 p-4 rounded-lg shadow">
+          <h3 className="text-xl font-semibold mb-4">Payment History</h3>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-200 text-gray-700">
+                <th className="border p-2">Date</th>
+                <th className="border p-2">Amount</th>
+                <th className="border p-2">Payment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border p-2">16/07/24</td>
+                <td className="border p-2">58014</td>
+                <td className="border p-2 text-green-500">Paid</td>
+              </tr>
+              <tr>
+                <td className="border p-2">16/08/24</td>
+                <td className="border p-2">14000</td>
+                <td className="border p-2">
+                  <button className="bg-blue-500 text-white rounded px-4 py-2">
+                    Pay Now
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
