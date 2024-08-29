@@ -1,45 +1,71 @@
 import React, { useRef, useState } from "react";
 import { MdOutlineAddAPhoto } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setHouses } from '../redux/houseSlice';
+import { setUserType } from '../redux/userSlice';
 
 const Signup = () => {
+  const dispatch = useDispatch() 
   const inputRefs = useRef({});
   const [error, setError] = useState("");
+  const navigate = useNavigate()
 
   function checkParams() {
     const fullName = inputRefs.current["full-name"].value;
     const email = inputRefs.current["email"].value;
     const contactNumber = inputRefs.current["contact-number"].value;
     const otp = inputRefs.current["otp"].value;
+    const password = inputRefs.current["password"].value;
 
-    if (!fullName || !email || !contactNumber) {
+    if (!fullName || !email || !contactNumber ||!password) {
       setError("All fields are required");
       console.log(12);
       return null;
     }
 
-    return { fullName, email, contactNumber, otp };
+    return { fullName, email, contactNumber, otp , password };
   }
 
   async function submitHandler() {
     const data = checkParams();
-    const response = await fetch("http://localhost:4000/api/v1/auth/signup", {
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: data.email,
-        fullName: data.fullName,
-        contactNumber: data.contactNumber,
-        otp: data.otp,
-      }),
-    });
-    const resp = await response.json();
-    if (resp.success) {
-    } else {
-      setError(resp.message);
+
+    try{
+      const response = await fetch("http://localhost:4000/api/v1/auth/signup", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          fullName: data.fullName,
+          contactNumber: data.contactNumber,
+          otp: data.otp,
+          password:data.password
+        }),
+      });
+      console.log("sdfghjkllkjhgxzxcvbnm,.,mnbvcxzxcvbnm,")
+      const resp = await response.json();
+  
+  
+      if (resp.success) {
+        console.log(resp)
+        localStorage.setItem('db_token' , resp.token)
+      console.log(resp)
+      console.log("hiiiiiiiiii")
+      dispatch(setHouses(resp.roomDetails))
+      navigate("/")
+      dispatch(setUserType(resp.user.isAdmin))
+        navigate("/")
+      } else {
+        console.log(resp)
+        setError(resp.message);
+      }
+
+    }catch(err){
+      console.log(err)
     }
+   
   }
   const getOTPHandler = async () => {
     console.log("gsvcgsgggggggggggggggggggggg");
@@ -140,6 +166,23 @@ const Signup = () => {
               placeholder="Enter your contact number"
               className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
               ref={(el) => (inputRefs.current["contact-number"] = el)}
+            />
+          </div>
+          <div className="flex-1 min-w-[250px]">
+            <label
+              htmlFor="contact-number"
+              className="block text-sm font-medium text-white"
+            >
+              Enter Password
+            </label>
+            <input
+              id="contact-number"
+              name="contact-number"
+              type="tel"
+              required
+              placeholder="Enter your contact number"
+              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
+              ref={(el) => (inputRefs.current["password"] = el)}
             />
           </div>
         </div>

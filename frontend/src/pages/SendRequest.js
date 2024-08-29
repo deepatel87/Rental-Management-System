@@ -1,49 +1,61 @@
 import React, { useRef, useState } from "react";
 import { MdOutlineAddAPhoto } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const SendRequest = () => {
   const inputRefs = useRef({});
   const [error, setError] = useState("");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const houseData = useSelector((store) => store.house.houseDetails);
+  const user = useSelector((store) => store.user.user);
+  
 
   function checkParams() {
-    const aadhaarNumber = inputRefs.current["aadhaar-number"].value;
-    const relativeNo = inputRefs.current["relative-number"].value;
-    const relation = inputRefs.current["relation"].value;
-    const work = inputRefs.current["work"].value;
-    const occupation = inputRefs.current["occupation"].value;
-    const people = inputRefs.current["no-of-people"].value;
+    const values = {
+      aadhaarNumber: inputRefs.current["aadhaar-number"]?.value,
+      relativeNumber: inputRefs.current["relative-number"]?.value,
+      relation: inputRefs.current["relation"]?.value,
+      work: inputRefs.current["work"]?.value,
+      occupation: inputRefs.current["occupation"]?.value,
+      noOfPeople: inputRefs.current["no-of-people"]?.value,
+      houseId: houseData._id, 
+      userId:user._id ,
 
-    if (
-      !aadhaarNumber ||
-      !relativeNo ||
-      !relation ||
-      !work ||
-      !occupation ||
-      !people
-    ) {
-      setError("All fields are required");
-      return null;
+      photo:"hh" ,
+      aadharImage:"hh" ,
+    };
+
+    // Check for empty fields
+    for (const key in values) {
+      if (!values[key]) {
+        setError("All fields are required");
+        return null;
+      }
     }
 
-    return { relativeNo, relation, work, occupation, people, aadhaarNumber };
+    return values;
   }
 
   async function submitHandler() {
+    console.log("hiiii")
     const data = checkParams();
-    const response = await fetch('http://localhost:4000/api/v1/auth/signup', {
-      method: 'post',
+    if (!data) return;
+
+    const response = await fetch("http://localhost:4000/api/v1/auth/updateProfile", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json' ,
-        "Authorization":`Bearer ${localStorage.getItem("token")}`
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: data.email, name: data.fullName, contactNumber: data.contactNumber, aadhaarNumber: data.aadhaarNumber, otp: data.otp })
+      body: JSON.stringify(data),
     });
+
     const resp = await response.json();
-    if (resp.success) {
+    console.log(resp) ;
+    if (resp.success) { 
       navigate("/");
     } else {
+      console.log(resp)
       setError(resp.message);
     }
   }
@@ -57,29 +69,21 @@ const SendRequest = () => {
 
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="aadhaar-number"
-              className="block text-sm font-medium text-white"
-            >
+            <label htmlFor="aadhaar-number" className="block text-sm font-medium text-white">
               Aadhaar Number
             </label>
             <input
               id="aadhaar-number"
               name="aadhaar-number"
               type="text"
-              required
               placeholder="Enter your Aadhaar number"
               className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
               ref={(el) => (inputRefs.current["aadhaar-number"] = el)}
             />
           </div>
 
-          {/* Additional Input Fields Styled Like Above */}
           <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="relative-number"
-              className="block text-sm font-medium text-white"
-            >
+            <label htmlFor="relative-number" className="block text-sm font-medium text-white">
               Relative No.
             </label>
             <input
@@ -91,11 +95,9 @@ const SendRequest = () => {
               ref={(el) => (inputRefs.current["relative-number"] = el)}
             />
           </div>
+
           <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="relation"
-              className="block text-sm font-medium text-white"
-            >
+            <label htmlFor="relation" className="block text-sm font-medium text-white">
               Relation
             </label>
             <input
@@ -107,11 +109,9 @@ const SendRequest = () => {
               ref={(el) => (inputRefs.current["relation"] = el)}
             />
           </div>
+
           <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="work"
-              className="block text-sm font-medium text-white"
-            >
+            <label htmlFor="work" className="block text-sm font-medium text-white">
               Where do you work
             </label>
             <input
@@ -123,11 +123,10 @@ const SendRequest = () => {
               ref={(el) => (inputRefs.current["work"] = el)}
             />
           </div>
+
+          {/* Occupation Input */}
           <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="occupation"
-              className="block text-sm font-medium text-white"
-            >
+            <label htmlFor="occupation" className="block text-sm font-medium text-white">
               Occupation
             </label>
             <input
@@ -139,11 +138,10 @@ const SendRequest = () => {
               ref={(el) => (inputRefs.current["occupation"] = el)}
             />
           </div>
+
+          {/* Number of People Input */}
           <div className="flex-1 min-w-[250px]">
-            <label
-              htmlFor="no-of-people"
-              className="block text-sm font-medium text-white"
-            >
+            <label htmlFor="no-of-people" className="block text-sm font-medium text-white">
               No of People
             </label>
             <input
@@ -157,23 +155,21 @@ const SendRequest = () => {
           </div>
         </div>
 
+        {/* File Upload Inputs */}
         <div className="flex flex-col space-[1rem] pb-4 mt-4">
           <p className="text-[1.1rem] text-white">Your Photo :</p>
           <div className="w-[5rem] h-[5rem] border-[#0f2740] border flex justify-center items-center mt-[0.5rem]">
             <label
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white border-[#0f2740] border-2"
-              htmlFor="img-upload"
+              htmlFor="img-upload-photo"
             >
-              <MdOutlineAddAPhoto
-                fill="black"
-                className="py-[0.6rem]"
-                size={44}
-              />
+              <MdOutlineAddAPhoto fill="black" className="py-[0.6rem]" size={44} />
             </label>
             <input
               type="file"
-              className="border-dimgray-400 border-[2px] w-[90%] h-[2.9rem] focus:border-green-500 focus:border-2 hidden"
-              id="img-upload"
+              className="hidden"
+              id="img-upload-photo"
+              ref={(el) => (inputRefs.current["photo"] = el)}
             />
           </div>
 
@@ -181,18 +177,15 @@ const SendRequest = () => {
           <div className="w-[5rem] h-[5rem] border-[#0f2740] border flex justify-center items-center mt-[0.5rem]">
             <label
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white border-[#0f2740] border-2"
-              htmlFor="img-upload"
+              htmlFor="img-upload-aadhaar"
             >
-              <MdOutlineAddAPhoto
-                fill="black"
-                className="py-[0.6rem]"
-                size={44}
-              />
+              <MdOutlineAddAPhoto fill="black" className="py-[0.6rem]" size={44} />
             </label>
             <input
               type="file"
-              className="border-dimgray-400 border-[2px] w-[90%] h-[2.9rem] focus:border-green-500 focus:border-2 hidden"
-              id="img-upload"
+              className="hidden"
+              id="img-upload-aadhaar"
+              ref={(el) => (inputRefs.current["aadhaarImage"] = el)}
             />
           </div>
         </div>

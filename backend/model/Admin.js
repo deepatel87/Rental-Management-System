@@ -6,25 +6,23 @@ const AdminSchema = new mongoose.Schema({
         type:String , 
     }, 
     password:{
-        type:String , 
+        type:String ,  
     } ,
     email:{
         type:String , 
     } ,
     
     roomDetails:[{
-        type:mongoose.Schema.Types.ObjectId 
+        type:mongoose.Schema.Types.ObjectId  ,
+        ref:"RoomDetails"
     }] ,
 
     requests: [{
         type: mongoose.Schema.Types.ObjectId,
        
-        refPath: 'reqModel'
+        ref: 'Request'
     }],
-    reqModel: {
-        type: String,
-        enum: ['User', 'RoomDetails']
-    } ,
+    
     tenants:[{
         type:mongoose.Schema.Types.ObjectId ,
         ref:"Tenant"
@@ -37,4 +35,4 @@ const AdminSchema = new mongoose.Schema({
     
 })
 
-module.exports = mongoose.model("User" ,AdminSchema )
+module.exports = mongoose.model("Admin" ,AdminSchema )

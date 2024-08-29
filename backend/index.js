@@ -10,6 +10,8 @@ require("dotenv").config()
 const dbConnect = require("./config/database") 
 dbConnect.connect();
 const userRoutes = require("./routes/User")
+const adminRoutes = require("./routes/Admin")
+const roomRoutes = require("./routes/RoomDetails")
 
  
   
@@ -23,6 +25,8 @@ const userRoutes = require("./routes/User")
 // app.use(cookieParser());
 
 app.use("/api/v1/auth" , userRoutes)
+app.use("/api/v1/admin" , adminRoutes)
+app.use("/api/v1/room" , roomRoutes)
 
 
 

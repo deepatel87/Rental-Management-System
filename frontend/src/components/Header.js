@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {useDispatch , useSelector} from "react-redux"
+import { setHouseDetails } from "../redux/houseSlice";
 
 export default function Header({ userType }) {
+  const dispatch = useDispatch()
   const [navbar, setNavbar] = useState(false);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const user = useSelector((store)=>store.user.isAdmin)
+  
 
   const navigateToHouseDetails = () => {
+    dispatch(setHouseDetails(null))
     navigate("/housedetails/:add");
   };
 
@@ -34,11 +40,11 @@ export default function Header({ userType }) {
   return (
     <nav className="w-full bg-gradient-to-bl from-[#3d5a80] to-[#98c1d9] shadow">
       <div className="justify-between px-4 mx-auto lg:max-w-7xl md:items-center md:flex md:px-8">
-        {userType === "user" ? (
+        {!user  ? (
           <>
             <div>
               <div className="flex items-center justify-between py-3 md:py-5 md:block">
-                <a href="javascript:void(0)">
+                <a href="">
                   <h2 className="text-2xl font-bold text-white">LOGO</h2>
                 </a>
                 <div className="md:hidden">
@@ -101,34 +107,21 @@ export default function Header({ userType }) {
                 </ul>
 
                 <div className="mt-3 space-y-2 lg:hidden md:inline-block">
-                  <Link
-                    to="/signup"
-                    className="inline-block w-full px-4 py-2 text-center text-white bg-gray-600 rounded-md shadow hover:bg-gray-800"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    to="/login"
+                 
+                  <button
                     className="inline-block w-full px-4 py-2 text-center text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
                   >
-                    Sign up
-                  </Link>
+                    Sign Out
+                  </button>
                 </div>
               </div>
             </div>
             <div className="hidden space-x-2 md:inline-block">
-              <Link
-                to="/login"
-                className="px-4 py-2 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800"
-              >
-                Sign in
-              </Link>
-              <Link
-                to="/signup"
-                className="px-4 py-2 text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
-              >
-                Sign up
-              </Link>
+            <button
+                    className="inline-block w-full px-4 py-2 text-center text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
+                  >
+                    Sign Out
+                  </button>
             </div>
           </>
         ) : (
@@ -162,21 +155,23 @@ export default function Header({ userType }) {
                 search !== "" && <p className="absolute p-3 bg-white absolute border border-gray-300 rounded-md w-full mt-3 ">No Results Found</p>
               )}
             </div>
-            <buttom className="px-7 py-3 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800 cursor-pointer">
+            <button className="px-7 py-3 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800 cursor-pointer">
               Search
-            </buttom>
-            <Link
-              to="/request"
+            </button>
+           {user && <> <Link
+              to="/requests"
               className="px-7 py-3 text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
             >
               requests
             </Link>
-            <buttom
+            <button
               className="px-7 py-3 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800 cursor-pointer"
               onClick={navigateToHouseDetails}
             >
               Add Room
-            </buttom>
+            </button>
+            </>
+} 
           </div>
         )}
       </div>

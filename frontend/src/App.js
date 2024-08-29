@@ -11,6 +11,7 @@ import { RouterProvider } from "react-router";
 import SendRequest from "./pages/SendRequest";
 import UserProfile from "./components/UserProfile";
 import Admin from "./components/Admin";
+import Requests from './pages/Requests';
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -41,6 +42,10 @@ function App() {
     {
       path: "/admin",
       element: <Admin></Admin>,
+    },
+    {
+      path: "/requests",
+      element: <Requests></Requests>,
     },
   ]);
 

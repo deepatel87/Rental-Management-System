@@ -38,6 +38,10 @@ const RoomDetails = new mongoose.Schema({
         type:String ,
 
     } ,
+ 
+    address:{
+        type:String , 
+    } , 
     isAvailable:{
         type:String ,
         enum:["Available" , "Not Available"] ,

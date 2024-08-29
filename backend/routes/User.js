@@ -1,22 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
+const {login , signUp , sendOTP , updateProfile} = require("../controllers/Auth")
+
 router.post("/login", login);
 router.post("/signup", signUp);
 router.post("/sendOTP", sendOTP);
+router.post("/updateProfile", updateProfile);
 
-const {
-    createRoom,
-    updateRoom,
-    removeTenantFromRoom,
-    deleteRoom,
-    sendRequest
-} = require("../controllers/RoomDetails");
 
-router.post("/createRoom", createRoom);
-router.post("/updateRoom", updateRoom);
-router.post("/removeTenantFromRoom", removeTenantFromRoom);
-router.post("/deleteRoom", deleteRoom);
-router.post("/sendRequest", sendRequest);
+
+
+
 
 module.exports = router;

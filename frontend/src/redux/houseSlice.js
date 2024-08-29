@@ -8,13 +8,17 @@ const houseSlice = createSlice({
   },
   reducers: {
     setHouses: (state, action) => {
-      state.houses.push(action.payload);
+      state.houses=action.payload ;
     },
     setHouseDetails: (state, action) => {
       state.houseDetails = action.payload;
     },
+
+    addHouse:(state , action)=>{
+      state.houses.push(action.payload)
+    }
   },
 });
 
-export const { setHouses, setHouseDetails } = houseSlice.actions;
+export const { setHouses, setHouseDetails , addHouse } = houseSlice.actions;
 export default houseSlice.reducer;

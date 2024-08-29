@@ -4,16 +4,34 @@ const Admin = require("../model/Admin")
 
 exports.createRoom = async (req, res) => {
     try {
-        const { type, rent, additionalDetails } = req.body;
+        const { type, rent, additionalDetails  , details , address} = req.body;
 
         const newRoom = new Room({
             type,
             rent,
-            additionalDetails
+            additionalDetails ,
+            details , 
+            address ,
+            isAvailable:"Available"
         });
 
         const savedRoom = await newRoom.save();
-        res.status(201).json(savedRoom);
+        const admin = await Admin.findByOne();
+
+        if (!admin) {
+            return res.status(404).json({ success: false, message: 'Admin not found' });
+        }
+
+        admin.roomDetails.push(savedRoom._id);
+
+        // Save the updated admin document
+        await admin.save();
+
+        res.status(200).json({
+            success:true , 
+            message:"Done"
+
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -115,8 +133,9 @@ exports.deleteRoom = async (req, res) => {
 
 
 exports.sendRequest = async (req, res) => {
-    const { adminId, userId, roomId } = req.body; 
-    if (!adminId || !userId || !roomId) {
+    const { userId, roomId } = req.body;
+
+    if (!userId || !roomId) {
         return res.status(400).json({
             success: false,
             message: "Missing Parameters"
@@ -124,8 +143,7 @@ exports.sendRequest = async (req, res) => {
     }
 
     try {
-        const admin = await Admin.findById(adminId);
-
+        const admin = await Admin.findOne(); 
         if (!admin) {
             return res.status(404).json({
                 success: false,
@@ -170,9 +188,3 @@ exports.sendRequest = async (req, res) => {
         });
     }
 }
-
-
-
-
-
-

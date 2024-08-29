@@ -1,9 +1,12 @@
 const User = require("../model/User") ;
+const Admin = require("../model/Admin") ;
+const Request = require("../model/Request") ;
 const OTP = require("../model/Otp") ;
 const otpGenerator=require("otp-generator") ;
 const bcrypt= require("bcrypt")
 const jwt = require("jsonwebtoken") ;
 const mailSender = require("../utils/mailSender");
+const RoomDetails = require("../model/RoomDetails")
 require("dotenv").config()
 
  
@@ -19,7 +22,7 @@ exports.sendOTP=async(req, res)=>{
             message:"User Already Exists"
         })
     }
-    var otp = otpGenerator.generate(6 , {
+    var otp = otpGenerator.generate(6 , { 
         upperCaseAlphabets:false ,
         lowerCaseAlphabets:false ,
         specialChars:false
@@ -63,7 +66,7 @@ exports.sendOTP=async(req, res)=>{
 exports.signUp = async(req , res)=>{
 
     try {
-        const {fullName , email   ,contactNumber , otp}=req.body ;
+        const {fullName , email   ,contactNumber , otp , password}=req.body ;
         console.log(email)
 
         if(!fullName || !email || !otp || !contactNumber ){
@@ -99,9 +102,9 @@ exports.signUp = async(req , res)=>{
                 message:"OTP doesn't match"
             })
         }
-        const password = fullName.split(" ")[0]+ Math.floor(Math.random()*(999-100+1)+100);
-        console.log(password)
 
+        console.log(password)
+       
 
         const hashedPassword = await  bcrypt.hash(password ,10) ;
 
@@ -119,6 +122,18 @@ exports.signUp = async(req , res)=>{
 
 
         })
+
+        const roomDetails = await RoomDetails.find();
+
+        return res.status(200).json({
+            success:true ,
+            message:"Registration done" ,
+            user: {
+                ...user.toObject(),
+                isAdmin: false 
+            },
+            roomDetails,
+        })
        
     } catch (error) {
         console.log(error)
@@ -134,186 +149,125 @@ exports.signUp = async(req , res)=>{
 
 }
 
-exports.login = async(req  , res)=>{
-    try{
-     const {email , password} = req.body ;
-     console.log(email , password)
-     if(!email || !password){
-        return res.status(403).json({
-            success:false ,
-            message:"Credentials Needed"
-        })
+exports.login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-     }
-     const existingUser = await User.findOne({email}) ;
-     console.log(existingUser)
-     if(!existingUser){
-        return res.status(403).json({
-            success:false ,
-            message:"User Doesn't exist"
-        })
-     }
-
-     if(await bcrypt.compare(password , existingUser.password)){
-        const payload = {
-            email:existingUser.email ,
-            id:existingUser._id ,
-            accountType:existingUser.accountType
+        if (!email || !password) {
+            return res.status(403).json({
+                success: false,
+                message: "Credentials Needed"
+            });
         }
-        const token = jwt.sign(payload , process.env.JWT_SECRET , {
-            expiresIn:"2h"
 
-        })
-        console.log("token" + token) 
+        // Check if the user exists in the User collection
+        const user = await User.findOne({ email });
+        const admin = await Admin.findOne({ email })
+        .populate({
+            path: 'requests',
+            populate: [
+                {
+                    path: 'userId', // Populate userId in requests
+                    model: 'User' ,
+                    select: '-password' // Exclude the password field from the User model
 
-        existingUser.token = token ;
-        existingUser.password = undefined ;
-        const options= {
-            expires:new Date(Date.now() + 3*24*60*60*1000) ,
-            httpOnly:true
+                },
+                {
+                    path: 'houseId', // Populate houseId in requests
+                    model: 'RoomDetails'
+                }
+            ]
+        });
+        if (!user && !admin) {
+            return res.status(403).json({
+                success: false,
+                message: "User Doesn't exist"
+            });
         }
-        res.cookie("cookie" , token , options).status(200).json({
-            success:true ,
-            token ,
-            existingUser ,
-            message:"Logged In Successfully"
-        })
+
         
-     } else{
-        return res.status(400).json({
-            success:false ,
-            message:"Password is Invalid"
-        })
-     }
 
-    }catch(err){
-        console.log(err)
-        return res.status(400).json({
-            success:false ,
-            message:"Couldn't Login"
-        })
-    }
-}
+        if (user && await bcrypt.compare(password, user.password)) {
+            const payload = {
+                email: user.email,
+                id: user._id,
+                accountType: user.accountType
+            };
 
-
- exports.getUser = async (req, res) => {
-    try {
-        const token = req.header('Authorization').split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        console.log(token)
-
-        if (!decoded    ) {
-            return res.status(404).json({
-                success: false,
-                message: "Authentication Failed. Kindly Log In."
+            const token = jwt.sign(payload, process.env.JWT_SECRET, {
+                expiresIn: "2h"
             });
-        }
 
-        const id = req.user.userId || req.user.id;
-        const user = await User.findById(id)
-                                        .populate("roomDetails")
-                                        .exec()
-           
+            const roomDetails = await RoomDetails.find();
 
-           
+            user.password = undefined; // Remove password from the response
 
+            const options = {
+                expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+                httpOnly: true
+            };
 
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "No such user exists."
+            return res.cookie("cookie", token, options).status(200).json({
+                success: true,
+                token,
+                user: {
+                    ...user.toObject(),
+                    isAdmin: false, // User found in User collection
+                },
+                roomDetails, // Include all RoomDetails in the response
+                message: "Logged In Successfully"
             });
-        }
+        } else if (admin && await bcrypt.compare(password, admin.password)) {
+            const payload = {
+                email: admin.email,
+                id: admin._id,
+                accountType: 'admin' // Or any other appropriate account type
+            };
 
-        return res.status(200).json({
-            success: true,
-            data: user
-        });
+            const token = jwt.sign(payload, process.env.JWT_SECRET, {
+                expiresIn: "2h"
+            });
 
-    } catch (err) {
-        console.log(err);
+            // Fetch all RoomDetails
+            const roomDetails = await RoomDetails.find();
 
-        return res.status(400).json({
-            success: false,
-            message: "Couldn't fetch user data."
-        });
-    }
-};
+            admin.password = undefined; // Remove password from the response
 
+            const options = {
+                expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+                httpOnly: true
+            };
 
+            return res.cookie("cookie", token, options).status(200).json({
+                success: true,
+                token,
+                user: {
+                    ...admin.toObject(),
+                    isAdmin: true 
+                },
+                roomDetails,
+                requests: admin.requests ,// Include populated requests ,
 
-exports.createProfile = async (req, res) => {
-    try {
-        const { gender, birthdate, sexualOrientation, instagram, snapchat, telegram, about, city, state, country, lat, lon } = req.body;
-
-        // Validate input
-        if (!gender || !birthdate || !sexualOrientation || (!instagram && !snapchat && !telegram) || !about || !city || !state || !country || !lat || !lon) {
+                message: "Logged In Successfully"
+            });
+        } else {
             return res.status(400).json({
                 success: false,
-                message: "Invalid or missing parameters"
+                message: "Password is Invalid"
             });
         }
 
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ message: "Authorization token missing" });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (!decoded) {
-            return res.status(401).json({ message: "Invalid token" });
-        }
-
-        req.user = decoded;
-        const id = req.user.userId || req.user.id;
-        console.log(id);
-
-        const user = await User.findById(id).populate('datingProfile');
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        if (user.datingProfile) {
-            return res.status(400).json({ message: "Profile already exists" });
-        }
-
-        const profileDetails = new Profile({
-            age: 12,  // Assuming age needs to be calculated or set elsewhere
-            gender,
-            birthdate,
-            sexualOrientation,
-            instagram,
-            snapchat,
-            telegram,
-            about,
-            city,
-            state,
-            country,
-            lat,
-            lon
-        });
-
-        await profileDetails.save();
-
-        user.datingProfile = profileDetails._id;
-        await user.save();
-
-        return res.status(201).json({
-            success: true,
-            message: "Profile created successfully",
-            profileDetails
-        });
-
     } catch (err) {
         console.log(err);
-        return res.status(500).json({
+        return res.status(400).json({
             success: false,
-            message: "Profile could not be created"
+            message: "Couldn't Login"
         });
     }
 };
+
+
+
 exports.getUser = async (req, res) => {
     try {
         console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
@@ -381,6 +335,90 @@ exports.getUser = async (req, res) => {
         });
     }
 };
+
+
+
+
+exports.updateProfile = async (req, res) => {
+    const { userId } = req.body;
+    const {
+        aadhaarNumber,
+        relativeNumber,
+        relation,
+        work,
+        occupation,
+        noOfPeople,
+        houseId,
+        photo,
+        aadhaarImage,
+         // Add adminId in request body to identify which admin to update
+        // Other fields that might be in the form can be added here
+    } = req.body;
+
+    try {
+        // Fetch the user first
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Update fields if they exist in the request body
+        if (aadhaarNumber !== undefined) user.aadharNumber = aadhaarNumber;
+        if (relativeNumber !== undefined) user.relativeNumber = relativeNumber;
+        if (relation !== undefined) user.relation = relation;
+        if (work !== undefined) user.work = work;
+        if (occupation !== undefined) user.occupation = occupation;
+        if (noOfPeople !== undefined) user.noOfPeople = noOfPeople;
+        if (houseId !== undefined) user.houseId = houseId;
+        if (photo !== undefined) user.image = photo;
+        if (aadhaarImage !== undefined) user.aadharImage = aadhaarImage;
+        // Add more fields here as needed
+
+        // Save the updated user
+        const updatedUser = await user.save();
+
+        // Fetch the admin
+        const admin = await Admin.findOne();
+        console.log(admin)
+
+        if (!admin) {
+            return res.status(404).json({ success: false, message: 'Admin not found' });
+        }
+
+        const existingRequest = await Request.findOne({ houseId, userId });
+
+        if (existingRequest) {
+            return res.status(400).json({ success: false, message: 'Request already exists' });
+        }
+
+
+
+
+
+        const request = await Request.create({
+            houseId , 
+            userId ,
+        })
+
+        admin.requests.push(request._id)
+        await admin.save()
+      
+
+      
+
+        res.json({ success: true, data: updatedUser });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+
+
+
+
+
 
 
 

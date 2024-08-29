@@ -1,0 +1,21 @@
+const express = require('express');
+const router = express.Router();
+
+
+const {
+    createRoom,
+    updateRoom,
+    removeTenantFromRoom,
+    deleteRoom,
+    sendRequest
+} = require("../controllers/RoomDetails");
+
+router.post("/addRoom", createRoom);
+router.post("/updateRoom", updateRoom);
+router.post("/removeTenantFromRoom", removeTenantFromRoom);
+router.post("/deleteRoom", deleteRoom);
+router.post("/sendRequest", sendRequest);
+
+
+
+module.exports = router  

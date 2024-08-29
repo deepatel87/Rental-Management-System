@@ -1,11 +1,17 @@
 import React, { useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { setHouses } from '../redux/houseSlice';
+import { setUserType , addUser } from '../redux/userSlice';
+import { setRequests } from '../redux/requestSlice';
 
 
 
 const Login = () => {
 
   const inputRefs = useRef({});
+  const navigate = useNavigate( )
+  const dispatch = useDispatch()
 
 
 
@@ -38,7 +44,21 @@ const Login = () => {
 
     if (resp.success) {
       localStorage.setItem('db_token' , resp.token)
+      console.log(resp)
       console.log("hiiiiiiiiii")
+      dispatch(setHouses(resp.roomDetails))
+      navigate("/")
+      dispatch(setUserType(resp.user.isAdmin))
+      dispatch(setRequests(resp.requests))
+
+
+      if(resp.user.isAdmin){
+        console.log("hellooooooooooooooooo")
+        console.log(resp.requests)
+
+
+      }
+    dispatch(addUser(resp.user))
 
     } else {
       console.log(resp)

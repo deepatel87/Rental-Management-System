@@ -5,129 +5,131 @@ import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../redux/userSlice";
 
 const Home = () => {
-  const dispatch = useDispatch();
-  dispatch(addUser("admin"));
   const userType = useSelector((store) => store.user.user);
 
-  const houseData = [
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-    {
-      house_pic:
-        "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
-      house_name: "4BHK",
-      house_details: "4BHK house in Ahmedabad",
-      house_address: "address",
-      house_price: 20000,
-      additional_details: "additional details of house",
-    },
-  ];
+  const houseData = useSelector((store)=>store.house.houses)
+
+
+
+  // const houseData = [
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  //   {
+  //     house_pic:
+  //       "https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg",
+  //     house_name: "4BHK",
+  //     house_details: "4BHK house in Ahmedabad",
+  //     house_address: "address",
+  //     house_price: 20000,
+  //     additional_details: "additional details of house",
+  //   },
+  // ];
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
       <Header userType={userType} />
@@ -136,8 +138,10 @@ const Home = () => {
           Luxurious Homes for Rent
         </h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {houseData.map((house, index) => (
-            <HouseCard key={index} houseData={house} />
+          { houseData.length!==0 && houseData.map((house, index) => (
+             <HouseCard key={index} houseData={house} />
+        
+
           ))}
         </div>
       </div>
