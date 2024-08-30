@@ -16,7 +16,11 @@ exports.createRoom = async (req, res) => {
         });
 
         const savedRoom = await newRoom.save();
-        const admin = await Admin.findByOne();
+        const admin = await Admin.findOne();
+
+        if(!admin.roomDetails){
+            admin.roomDetails=[]
+        }
 
         if (!admin) {
             return res.status(404).json({ success: false, message: 'Admin not found' });

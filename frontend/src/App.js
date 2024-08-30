@@ -12,6 +12,7 @@ import SendRequest from "./pages/SendRequest";
 import UserProfile from "./components/UserProfile";
 import Admin from "./components/Admin";
 import Requests from './pages/Requests';
+import TenantProfile from "./components/TenantProfile";
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -46,6 +47,11 @@ function App() {
     {
       path: "/requests",
       element: <Requests></Requests>,
+    },
+
+    {
+      path: "/tenantprofile",
+      element: <TenantProfile/>,
     },
   ]);
 

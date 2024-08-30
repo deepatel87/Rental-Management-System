@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { setHouses } from '../redux/houseSlice';
-import { setUserType , addUser } from '../redux/userSlice';
+import { setUserType , addUser, setTenants } from '../redux/userSlice';
 import { setRequests } from '../redux/requestSlice';
 
 
@@ -50,6 +50,7 @@ const Login = () => {
       navigate("/")
       dispatch(setUserType(resp.user.isAdmin))
       dispatch(setRequests(resp.requests))
+      dispatch(setTenants(resp.tenants))
 
 
       if(resp.user.isAdmin){

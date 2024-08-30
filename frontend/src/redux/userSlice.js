@@ -5,6 +5,7 @@ const userSlice = createSlice({
   initialState: {
     user: null,
     isAdmin:false ,
+    tenants:[] ,
   
   },
 
@@ -17,12 +18,25 @@ const userSlice = createSlice({
       state.user = null;
     },
     setUserType:(state , action)=>{
-      state.isAdmin = action.payload
+      state.isAdmin = action.payload ;
 
+    }  ,
+    setTenants:(state , action ) => {
+      state.tenants=action.payload ;
+
+    } ,
+
+    addTenant:(state , action)=>{
+      state.tenants.push(action.payload)
+
+    } ,
+    removeTenant:(state , action)=>{
+      console.log(action.payload)
+      state.tenants = state.tenants.filter((ten)=>(ten._id.toString())!==(action.payload.toString()))
     }
   },
 });
 
-export const { addUser, removeUser , setUserType } = userSlice.actions;
+export const { addUser, removeUser , setUserType , removeTenant ,addTenant , setTenants } = userSlice.actions;
 
 export default userSlice.reducer;

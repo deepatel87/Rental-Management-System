@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { removeRequest } from '../redux/requestSlice';
+import { addTenant } from '../redux/userSlice';
+import { removeHouse } from '../redux/houseSlice';
 
 const UserProfile = () => {
   const dispatch = useDispatch()
@@ -10,10 +12,12 @@ const UserProfile = () => {
   const profile = decodeURIComponent(params);
 
   let person = useSelector((store) => store.request.currRequest);
+  let house = person.house._id
   console.log(person)
 
   const id = person.id ;
   person=person.person
+  console.log(person)
 
   const inputRefs = useRef({
     name: null,
@@ -57,19 +61,25 @@ const UserProfile = () => {
   }
 
  async function acceptHandler() {
+  console.log(id)
 
-  const response = await fetch('http://localhost:4000/api/v1/auth/acceptRequest', {
+  const response = await fetch('http://localhost:4000/api/v1/admin/acceptRequest', {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
       
     },
-    body: JSON.stringify({requestId:id }),
+    body: JSON.stringify({requestId:id}),
   });
 
-  const resp = await response.json();
+  const resp = await response.json()
+  console.log(resp)
 
-    dispatch(removeRequest(id))
+    dispatch(addTenant(resp.populatedTenant))
+    dispatch(removeRequest({req:"accept"  , userId:person._id}))
+    dispatch(removeHouse(house))
+
+
 
 
   }
@@ -87,8 +97,7 @@ const UserProfile = () => {
   
     const resp = await response.json();
     console.log(resp)
-  
-      dispatch(removeRequest(id))
+    dispatch(removeRequest({req:"reject"  , reqId:id}))
 
 
   }
@@ -99,7 +108,6 @@ const UserProfile = () => {
     <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 mt-8 text-black">
     <h2 className="text-2xl font-bold mb-4">User Profile</h2>
   
-    {/* User Details Section */}
     <div className="bg-gray-50 p-4 rounded-lg shadow mb-8">
       <h3 className="text-xl font-semibold mb-4">User Details</h3>
       <div className="grid grid-cols-2 gap-4">
@@ -201,6 +209,8 @@ const UserProfile = () => {
       </div>
       
       <div className="flex gap-x-3">
+
+        
         <button
           className="px-7 py-3 bg-blue-500 hover:bg-blue-400 text-lg font-semibold rounded-lg w-full mt-4 text-white"
           onClick={acceptHandler}
@@ -213,10 +223,10 @@ const UserProfile = () => {
         >
           Reject
         </button>
+
       </div>
     </div>
   
-    {/* Payment History Section */}
   </div>
   
   );

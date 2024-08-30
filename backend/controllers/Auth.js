@@ -177,7 +177,23 @@ exports.login = async (req, res) => {
                     model: 'RoomDetails'
                 }
             ]
-        });
+        })
+        .populate({
+            path: 'tenants',
+            populate: [
+                {
+                    path: 'user', // Populate user in tenants
+                    model: 'User',
+                    select: '-password' // Exclude the password field from the User model
+                },
+                {
+                    path: 'room', // Populate room in tenants
+                    model: 'RoomDetails' // Populate the RoomDetails model
+                }
+            ]
+        })
+
+
         if (!user && !admin) {
             return res.status(403).json({
                 success: false,
@@ -246,7 +262,8 @@ exports.login = async (req, res) => {
                     isAdmin: true 
                 },
                 roomDetails,
-                requests: admin.requests ,// Include populated requests ,
+                requests: admin.requests ,
+                tenants: admin.tenants, 
 
                 message: "Logged In Successfully"
             });
@@ -351,19 +368,17 @@ exports.updateProfile = async (req, res) => {
         houseId,
         photo,
         aadhaarImage,
-         // Add adminId in request body to identify which admin to update
-        // Other fields that might be in the form can be added here
     } = req.body;
 
     try {
-        // Fetch the user first
         const user = await User.findById(userId);
 
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Update fields if they exist in the request body
+      
+
         if (aadhaarNumber !== undefined) user.aadharNumber = aadhaarNumber;
         if (relativeNumber !== undefined) user.relativeNumber = relativeNumber;
         if (relation !== undefined) user.relation = relation;

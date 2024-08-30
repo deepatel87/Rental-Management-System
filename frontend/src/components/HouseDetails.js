@@ -10,7 +10,6 @@ const HouseDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   console.log(houseData )
-  console.log("---------------------")
 
   const { params } = useParams();
   let name = decodeURIComponent(params);
@@ -76,6 +75,13 @@ const HouseDetails = () => {
         additionalDetails: formValues.additionalDetails,
       }),
     });
+
+
+    dispatch(addHouse({  type: formValues.name,
+      details: formValues.details,
+      address: formValues.address,
+      rent: formValues.price,
+      additionalDetails: formValues.additionalDetails,}))
 
     const resp = await response.json();
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {useDispatch , useSelector} from "react-redux"
 import { setHouseDetails } from "../redux/houseSlice";
+import { setCurrTenant } from "../redux/requestSlice";
 
 export default function Header({ userType }) {
   const dispatch = useDispatch()
@@ -18,23 +19,40 @@ export default function Header({ userType }) {
 
   const [searchResult, setSearchResult] = useState([]);
 
-  const userProfile = [];
+  const userProfile =  useSelector((store)=>store.user.tenants);
+  console.log(userProfile)
+  
 
-  const sortedOnlyServices = Array.from(userProfile).sort((a, b) =>
-    a.name.localeCompare(b.name)
-  ); // to sort the service data for efficient searching.
+ 
 
   const searchUser = (e) => {
     setSearch(e.target.value);
-    setSearchResult(
-      sortedOnlyServices.filter((service) =>
-        service.name.trim().toLowerCase().includes(search.trim().toLowerCase())
-      )
-    );
+    
+     
+
+
+let ans = []
+
+      userProfile.forEach(element => {
+        if(element.user.fullName.trim().toLowerCase().includes(search.trim().toLowerCase())){
+          ans.push(element)
+
+        }
+        
+      });
+
+      console.log(ans)
+      setSearchResult(
+          ans
+       
+  )
+    // );
   };
 
-  const goToUserProfile = () => {
-    navigate("/userprofile/:user");
+  const goToUserProfile = (result) => {
+    dispatch(setCurrTenant(result))
+
+    navigate("/tenantprofile");
   };
 
   return (
@@ -134,7 +152,7 @@ export default function Header({ userType }) {
                 value={search}
                 onChange={searchUser}
               />
-              {search !== "" && searchResult.length !== 0 ? (
+              {search !== ""  &&  searchResult.length !== 0 ? (
                 <div className="flex flex-col bg-white absolute border border-gray-300 rounded-md w-full mt-3 h-64 overflow-auto scrollbar-thin scrollbar-webkit">
                   {searchResult.map((result) => (
                     <div
@@ -142,17 +160,13 @@ export default function Header({ userType }) {
                       className="flex p-3 justify-start items-center gap-x-3 cursor-pointer"
                       onClick={() => goToUserProfile(result)}
                     >
-                      <img
-                        src={result.image_url}
-                        alt=""
-                        className="w-20 rounded-lg"
-                      />
-                      <p className="text-gray-900">{result.name}</p>
+                     
+                      <p className="text-gray-900">{result.user.fullName}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                search !== "" && <p className="absolute p-3 bg-white absolute border border-gray-300 rounded-md w-full mt-3 ">No Results Found</p>
+                search !== "" && <p className=" p-3 bg-white absolute border border-gray-300 rounded-md w-full mt-3 ">No Results Found</p>
               )}
             </div>
             <button className="px-7 py-3 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800 cursor-pointer">

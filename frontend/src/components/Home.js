@@ -7,7 +7,9 @@ import { addUser } from "../redux/userSlice";
 const Home = () => {
   const userType = useSelector((store) => store.user.user);
 
-  const houseData = useSelector((store)=>store.house.houses)
+  let houseData = useSelector((store)=>store.house.houses) ;
+  houseData= houseData.filter((house)=>house.isAvailable==="Available") 
+
 
 
 

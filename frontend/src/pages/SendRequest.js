@@ -38,6 +38,9 @@ const SendRequest = () => {
   }
 
   async function submitHandler() {
+    if(user?.roomDetails){
+      alert("You already have a room")
+    }
     console.log("hiiii")
     const data = checkParams();
     if (!data) return;

@@ -1,6 +1,9 @@
 const Admin = require("../model/Admin")
+const User = require("../model/User")
 const Request = require("../model/Request")
 const bcrypt= require("bcrypt") 
+const Tenant = require("../model/Tenant")
+const RoomDetails = require("../model/RoomDetails")
 
 
 
@@ -93,6 +96,7 @@ exports.rejectRequest = async (req, res) => {
 exports.acceptRequest = async (req, res) => {
     try {
         const { requestId } = req.body;
+        console.log("Hiiiiiiiiiiiiii");
 
         if (!requestId) {
             return res.status(400).json({
@@ -103,6 +107,7 @@ exports.acceptRequest = async (req, res) => {
 
         const request = await Request.findByIdAndDelete(requestId)
             .populate('userId houseId');
+        console.log(request);
 
         if (!request) {
             return res.status(404).json({
@@ -116,6 +121,7 @@ exports.acceptRequest = async (req, res) => {
             { $pull: { requests: requestId } },
             { new: true }
         );
+        console.log(admin);
 
         const startDate = new Date();
 
@@ -126,6 +132,10 @@ exports.acceptRequest = async (req, res) => {
             endDate: new Date(startDate.setMonth(startDate.getMonth() + 11)) // Set end date 11 months from the start date
         });
 
+        if (!admin.tenants) {
+            admin.tenants = [];
+        }
+
         await tenant.save();
 
         admin.tenants.push(tenant._id);
@@ -133,13 +143,31 @@ exports.acceptRequest = async (req, res) => {
 
         await RoomDetails.findByIdAndUpdate(
             request.houseId._id,
-            { isAvailable: "Not Available" }
+            { 
+                isAvailable: "Not Available", 
+                tenant: tenant._id // Add the tenant ID reference to the RoomDetails
+            }
         );
+
+        // Delete any other requests from the same user
+        await Request.deleteMany({ userId: request.userId._id });
+
+        await User.findByIdAndUpdate(
+            request.userId._id,
+            { roomDetails: request.houseId._id } // Pass the room ID to the user's room details
+        );
+
+        const populatedTenant = await Tenant.findById(tenant._id)
+        .populate('user')
+        .populate('room');
 
         return res.status(200).json({
             success: true,
-            message: 'Request accepted and tenant added successfully'
+            message: 'Request accepted and tenant added successfully, other requests from the same user deleted' ,
+            populatedTenant:populatedTenant 
+
         });
+
     } catch (err) {
         console.error(err);
         return res.status(500).json({
@@ -148,3 +176,57 @@ exports.acceptRequest = async (req, res) => {
         });
     }
 };
+
+exports.removeTenant = async (req, res) => {
+    try {
+        const { tenantId } = req.body;
+
+        if (!tenantId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Tenant ID is required'
+            });
+        }
+
+        const tenant = await Tenant.findById(tenantId).populate('user').populate('room');
+
+        if (!tenant) {
+            return res.status(404).json({
+                success: false,
+                message: 'Tenant not found'
+            });
+        }
+
+        const { user, room } = tenant;
+
+        await User.findByIdAndUpdate(user._id, {
+            $unset: { roomDetails: "" }
+        });
+
+        await Admin.findOneAndUpdate(
+            {},
+            { $pull: { tenants: tenantId } },
+            { new: true }
+        );
+
+        await RoomDetails.findByIdAndUpdate(room._id, {
+            $set: { isAvailable: "Available" },
+            $unset: { tenant: "" }
+        });
+
+        await Tenant.findByIdAndDelete(tenantId);
+
+        res.status(200).json({
+            success: true,
+            message: 'Tenant removed successfully'
+        });
+    } catch (error) {
+        console.error('Error removing tenant:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message
+        });
+    }
+};
+
