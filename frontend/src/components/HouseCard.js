@@ -9,7 +9,7 @@ const HouseCard = ({ houseData }) => {
     <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl">
       <div className="relative">
         <img
-          src="https://img.staticmb.com/mbphoto/property/cropped_images/2024/Apr/29/Photo_h300_w450/72550691_4_hatsAppImage20240425at11.17.27AM1_300_450.jpeg"
+          src={houseData.image}
 
           alt="abc.com"
           className="w-full h-56 object-cover"

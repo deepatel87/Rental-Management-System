@@ -23,12 +23,8 @@ const UserSchema = new mongoose.Schema({
     },
     aadharNumber: {
         type: String,
-        required: true,
-        unique: true
     },
-    image: {
-        type: String,
-    },
+   
     roomDetails: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "RoomDetails"

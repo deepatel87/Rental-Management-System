@@ -8,11 +8,12 @@ const jwt = require("jsonwebtoken") ;
 const mailSender = require("../utils/mailSender");
 const RoomDetails = require("../model/RoomDetails")
 require("dotenv").config()
+const {uploadImageToCloudinary} = require("../utils/imageUploader")
 
  
 exports.sendOTP=async(req, res)=>{
     try {
-        const {email }= req.body ;
+        const {email }= req.body;
 
         const checkUserPresent = await User.findOne({email:email}) ;
 
@@ -114,8 +115,8 @@ exports.signUp = async(req , res)=>{
             email ,
             contactNumber , 
             password:hashedPassword ,
-            addhar:"url" ,
-            photo:"url" ,
+            aadharImage:"url" ,
+            aadharNumber:Math.random()*10000 + Math.random()*20000 , 
             isAdmin:false , 
             roomDetails:null
 
@@ -366,9 +367,10 @@ exports.updateProfile = async (req, res) => {
         occupation,
         noOfPeople,
         houseId,
-        photo,
-        aadhaarImage,
+       
     } = req.body;
+
+    const aadharImage = req.files.aadhaarImage
 
     try {
         const user = await User.findById(userId);
@@ -386,14 +388,17 @@ exports.updateProfile = async (req, res) => {
         if (occupation !== undefined) user.occupation = occupation;
         if (noOfPeople !== undefined) user.noOfPeople = noOfPeople;
         if (houseId !== undefined) user.houseId = houseId;
-        if (photo !== undefined) user.image = photo;
-        if (aadhaarImage !== undefined) user.aadharImage = aadhaarImage;
-        // Add more fields here as needed
+        // if (photo !== undefined) user.image = photo;
 
-        // Save the updated user
+        const aadharUpdatedImage = await uploadImageToCloudinary(aadharImage , process.env.FOLDER_NAME) ;
+        user.aadharImage = aadharUpdatedImage.secure_url;
+
+
+        
+
+
         const updatedUser = await user.save();
 
-        // Fetch the admin
         const admin = await Admin.findOne();
         console.log(admin)
 

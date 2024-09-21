@@ -18,6 +18,7 @@ const UserProfile = () => {
   const id = person.id ;
   person=person.person
   console.log(person)
+  console.log(person.aadharImage)
 
   const inputRefs = useRef({
     name: null,
@@ -202,8 +203,8 @@ const UserProfile = () => {
           />
         </div>
         <div className="col-span-2 flex justify-center">
-          <div className="w-24 h-24 border border-gray-300 rounded bg-gray-100 flex items-center justify-center">
-            User Photo
+          <div className="w-24 h-24 border border-gray-300 rounded bg-gray-100 flex items-center justify-center" onClick={()=>{window.open(person?.aadharImage+"" , "_blank")}}>
+            <img src={person?.aadharImage+""} alt=''/> 
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ const Home = () => {
   const userType = useSelector((store) => store.user.user);
 
   let houseData = useSelector((store)=>store.house.houses) ;
+  console.log(houseData)
   houseData= houseData.filter((house)=>house.isAvailable==="Available") 
 
 

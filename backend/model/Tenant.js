@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const RentDetailsSchema = require('./RentDetails'); // Adjust the path as needed
+const RentDetailsSchema = require('./RentDetails'); 
 
 const TenantSchema = new mongoose.Schema({
     user: {
@@ -12,7 +12,7 @@ const TenantSchema = new mongoose.Schema({
     },
     startDate: {
         type: Date,
-        default: Date.now
+        default: Date.now()
     },
     endDate: {
         type: Date

@@ -1,10 +1,21 @@
 const Room = require('../model/RoomDetails');
 const User = require("../model/User") ;
 const Admin = require("../model/Admin")
+const {uploadImageToCloudinary} = require("../utils/imageUploader")
 
 exports.createRoom = async (req, res) => {
     try {
         const { type, rent, additionalDetails  , details , address} = req.body;
+        console.log(req.files)
+
+        
+
+
+        const image = req.files.image ;
+        console.log(image)
+        const roomImage = await uploadImageToCloudinary(image , process.env.FOLDER_NAME) ;
+        console.log(roomImage)
+        const roomUrl = roomImage.secure_url;
 
         const newRoom = new Room({
             type,
@@ -12,7 +23,8 @@ exports.createRoom = async (req, res) => {
             additionalDetails ,
             details , 
             address ,
-            isAvailable:"Available"
+            isAvailable:"Available" , 
+            image:roomUrl
         });
 
         const savedRoom = await newRoom.save();
@@ -37,6 +49,7 @@ exports.createRoom = async (req, res) => {
 
         });
     } catch (err) {
+        console.log(err)
         res.status(500).json({ error: err.message });
     }
 };

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { MdOutlineAddAPhoto } from "react-icons/md";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const SendRequest = () => {
@@ -9,9 +9,10 @@ const SendRequest = () => {
   const navigate = useNavigate();
   const houseData = useSelector((store) => store.house.houseDetails);
   const user = useSelector((store) => store.user.user);
-  
+  console.log(user)
+  console.log(houseData._id)
 
-  function checkParams() {
+  function checkParams() { 
     const values = {
       aadhaarNumber: inputRefs.current["aadhaar-number"]?.value,
       relativeNumber: inputRefs.current["relative-number"]?.value,
@@ -19,14 +20,12 @@ const SendRequest = () => {
       work: inputRefs.current["work"]?.value,
       occupation: inputRefs.current["occupation"]?.value,
       noOfPeople: inputRefs.current["no-of-people"]?.value,
-      houseId: houseData._id, 
-      userId:user._id ,
+      houseId: houseData?._id,
+      userId: user?._id,
+    }; 
 
-      photo:"hh" ,
-      aadharImage:"hh" ,
-    };
+    console.log(values)
 
-    // Check for empty fields
     for (const key in values) {
       if (!values[key]) {
         setError("All fields are required");
@@ -38,28 +37,48 @@ const SendRequest = () => {
   }
 
   async function submitHandler() {
-    if(user?.roomDetails){
-      alert("You already have a room")
+    if (user?.roomDetails) {
+      alert("You already have a room");
+      return;
     }
-    console.log("hiiii")
+
     const data = checkParams();
     if (!data) return;
 
-    const response = await fetch("http://localhost:4000/api/v1/auth/updateProfile", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+    const formData = new FormData();
+
+    // Append all text fields
+    Object.keys(data).forEach(key => {
+      formData.append(key, data[key]);
     });
 
-    const resp = await response.json();
-    console.log(resp) ;
-    if (resp.success) { 
-      navigate("/");
+    // Append file fields
+    const aadhaarFile = inputRefs.current["aadhaarImage"].files[0];
+
+   
+    if (aadhaarFile) {
+      formData.append("aadhaarImage", aadhaarFile);
     } else {
-      console.log(resp)
-      setError(resp.message);
+      setError("Please upload your Aadhaar image");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:4000/api/v1/auth/updateProfile", {
+        method: "POST",
+        body: formData,
+      });
+
+      const resp = await response.json();
+      console.log(resp);
+      if (resp.success) {
+        navigate("/");
+      } else {
+        setError(resp.message);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setError("An error occurred while submitting the form");
     }
   }
 
@@ -127,7 +146,6 @@ const SendRequest = () => {
             />
           </div>
 
-          {/* Occupation Input */}
           <div className="flex-1 min-w-[250px]">
             <label htmlFor="occupation" className="block text-sm font-medium text-white">
               Occupation
@@ -142,7 +160,6 @@ const SendRequest = () => {
             />
           </div>
 
-          {/* Number of People Input */}
           <div className="flex-1 min-w-[250px]">
             <label htmlFor="no-of-people" className="block text-sm font-medium text-white">
               No of People
@@ -162,18 +179,7 @@ const SendRequest = () => {
         <div className="flex flex-col space-[1rem] pb-4 mt-4">
           <p className="text-[1.1rem] text-white">Your Photo :</p>
           <div className="w-[5rem] h-[5rem] border-[#0f2740] border flex justify-center items-center mt-[0.5rem]">
-            <label
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white border-[#0f2740] border-2"
-              htmlFor="img-upload-photo"
-            >
-              <MdOutlineAddAPhoto fill="black" className="py-[0.6rem]" size={44} />
-            </label>
-            <input
-              type="file"
-              className="hidden"
-              id="img-upload-photo"
-              ref={(el) => (inputRefs.current["photo"] = el)}
-            />
+           
           </div>
 
           <p className="text-[1.1rem] text-white mt-8">Aadhar Card :</p>
