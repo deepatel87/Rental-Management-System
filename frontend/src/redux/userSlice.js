@@ -27,6 +27,9 @@ const userSlice = createSlice({
     } ,
 
     addTenant:(state , action)=>{
+      if(!state.tenants){
+        state.tenants = []
+      }
       state.tenants.push(action.payload)
 
     } ,

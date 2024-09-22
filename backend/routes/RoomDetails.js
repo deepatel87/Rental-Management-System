@@ -7,7 +7,8 @@ const {
     updateRoom,
     removeTenantFromRoom,
     deleteRoom,
-    sendRequest
+    sendRequest ,
+    updateRentStatus
 } = require("../controllers/RoomDetails");
 
 router.post("/addRoom", createRoom);
@@ -15,6 +16,7 @@ router.post("/updateRoom", updateRoom);
 router.post("/removeTenantFromRoom", removeTenantFromRoom);
 router.post("/deleteRoom", deleteRoom);
 router.post("/sendRequest", sendRequest);
+router.post("/payRent", updateRentStatus);
 
 
 

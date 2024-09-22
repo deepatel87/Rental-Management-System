@@ -4,6 +4,7 @@ const Request = require("../model/Request")
 const bcrypt= require("bcrypt") 
 const Tenant = require("../model/Tenant")
 const RoomDetails = require("../model/RoomDetails")
+const RentDetails = require("../model/RentDetails")
 
 
 
@@ -199,21 +200,28 @@ exports.removeTenant = async (req, res) => {
 
         const { user, room } = tenant;
 
+        // Remove rent details related to the tenant
+        await RentDetails.deleteMany({ tenantId: tenantId });
+
+        // Update user to unset roomDetails
         await User.findByIdAndUpdate(user._id, {
             $unset: { roomDetails: "" }
         });
 
+        // Update admin to pull tenant from its list
         await Admin.findOneAndUpdate(
             {},
             { $pull: { tenants: tenantId } },
             { new: true }
         );
 
+        // Update room details to set availability and unset tenant
         await RoomDetails.findByIdAndUpdate(room._id, {
             $set: { isAvailable: "Available" },
             $unset: { tenant: "" }
         });
 
+        // Delete the tenant
         await Tenant.findByIdAndDelete(tenantId);
 
         res.status(200).json({
@@ -229,4 +237,5 @@ exports.removeTenant = async (req, res) => {
         });
     }
 };
+
 

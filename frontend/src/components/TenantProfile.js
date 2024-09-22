@@ -7,15 +7,13 @@ import { removeTenant } from '../redux/userSlice';
 import { addHouse } from '../redux/houseSlice';
 
 const TenantProfile = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const { params } = useParams();
 
-  let person = useSelector((store) => store.request.currTenant.user);
-  let house = useSelector((store) => store.request.currTenant.room);
-  let id = useSelector((store) => store.request.currTenant._id);
-
-
- 
+  const person = useSelector((store) => store.request.currTenant.user);
+  const house = useSelector((store) => store.request.currTenant.room);
+  const id = useSelector((store) => store.request.currTenant._id);
+  const rentHistory = useSelector((store) => store.request.currTenant.rentHistory) || [];
 
   const inputRefs = useRef({
     name: null,
@@ -27,59 +25,57 @@ const TenantProfile = () => {
     relation: null,
     occupation: null,
     numberOfPeople: null,
-  }); 
-
-  
-
-
+  });
 
   async function removetenant() {
-    console.log(id)
+    console.log(id);
     const response = await fetch('http://localhost:4000/api/v1/admin/removeTenant', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
-        
       },
-      body: JSON.stringify({tenantId:id }),
+      body: JSON.stringify({ tenantId: id }),
     });
-  
+
     const resp = await response.json();
-    console.log(resp)
-    console.log(id)
+    console.log(resp);
 
-    dispatch(removeTenant(id))
-    console.log(house)
+    dispatch(removeTenant(id));
     const newObj = { 
-        ...house, 
-        isAvailable: "Available" 
-      };
+      ...house, 
+      isAvailable: "Available" 
+    };
       
-      dispatch(addHouse(newObj));
-      
-  
-
-
+    dispatch(addHouse(newObj));
   }
+
+  // Filter unpaid rents
+  const unpaidRents = rentHistory.filter(rent => rent.status === 'Unpaid');
 
   return (
     <div>
+      <button onClick={removetenant}>Remove Tenant</button>
+      <p>{person.fullName}</p>
+      <p>{person.rent}</p>
+      <p>{person.aadharNumber}</p>
+      <p>{person.numberOfPeople}</p>
+      <p>{person.occupation}</p>
 
-        <button onClick={removetenant}>Remove Tenant</button>
-        <p>{person.fullName}</p>
-        <p>{person.rent}</p>
-        <p>{person.aadharNumber}</p>
-        <p>{person.numberOfPeople}</p>
-        <p>{person.occupation}</p>
+      <h3>Unpaid Rents</h3>
+      {unpaidRents.length > 0 ? (
+        <ul>
+          {unpaidRents.map((rent) => (
+            <li key={rent._id}>
+              <p>Amount: {rent.amount}</p>
+              <p>For Month: {new Date(rent.forMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
+              <p>Date of Payment: {rent.dateOfPayment ? new Date(rent.dateOfPayment).toLocaleDateString() : 'Not paid yet'}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No unpaid rents.</p>
+      )}
     </div>
-
- 
-  
-       
-
-      
-  
-  
   );
 };
 

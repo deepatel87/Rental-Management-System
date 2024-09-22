@@ -79,6 +79,7 @@ const HouseDetails = () => {
 
     if (resp.success) {
       console.log("Room details updated successfully");
+      console.log(resp.data)
       dispatch(addHouse(resp.data));
       navigate("/");
     } else {

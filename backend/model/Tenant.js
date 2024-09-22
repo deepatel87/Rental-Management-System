@@ -22,15 +22,12 @@ const TenantSchema = new mongoose.Schema({
         enum: ['Active', 'Inactive'],
         default: 'Active'
     },
-    rentDetails: {
-        type: [RentDetailsSchema],
-        default: function() {
-            return [{
-                amount: 0, 
-                status: 'Unpaid'
-            }];
-        }
-    }
+    rentHistory:[{
+        type:mongoose.Schema.Types.ObjectId ,
+        ref:"RentDetails" ,
+        default:[]
+    }] ,
+   
 });
 
 module.exports = mongoose.model('Tenant', TenantSchema);

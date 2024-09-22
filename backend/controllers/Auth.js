@@ -1,4 +1,5 @@
 const User = require("../model/User") ;
+const Tenant = require("../model/Tenant")
 const Admin = require("../model/Admin") ;
 const Request = require("../model/Request") ;
 const OTP = require("../model/Otp") ;
@@ -9,6 +10,7 @@ const mailSender = require("../utils/mailSender");
 const RoomDetails = require("../model/RoomDetails")
 require("dotenv").config()
 const {uploadImageToCloudinary} = require("../utils/imageUploader")
+const RentDetails = require("../model/RentDetails")
 
  
 exports.sendOTP=async(req, res)=>{
@@ -161,40 +163,39 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Check if the user exists in the User collection
-        const user = await User.findOne({ email });
+        // Find user and admin by email
+        const user = await User.findOne({ email }).populate("roomDetails");
         const admin = await Admin.findOne({ email })
-        .populate({
-            path: 'requests',
-            populate: [
-                {
-                    path: 'userId', // Populate userId in requests
-                    model: 'User' ,
-                    select: '-password' // Exclude the password field from the User model
+            .populate({
+                path: 'requests',
+                populate: [
+                    {
+                        path: 'userId',
+                        model: 'User',
+                        select: '-password'
+                    },
+                    {
+                        path: 'houseId',
+                        model: 'RoomDetails'
+                    }
+                ]
+            })
+            .populate({
+                path: 'tenants',
+                populate: [
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select: '-password'
+                    },
+                    {
+                        path: 'room',
+                        model: 'RoomDetails'
+                    }
+                ]
+            });
 
-                },
-                {
-                    path: 'houseId', // Populate houseId in requests
-                    model: 'RoomDetails'
-                }
-            ]
-        })
-        .populate({
-            path: 'tenants',
-            populate: [
-                {
-                    path: 'user', // Populate user in tenants
-                    model: 'User',
-                    select: '-password' // Exclude the password field from the User model
-                },
-                {
-                    path: 'room', // Populate room in tenants
-                    model: 'RoomDetails' // Populate the RoomDetails model
-                }
-            ]
-        })
-
-
+        // If neither user nor admin found
         if (!user && !admin) {
             return res.status(403).json({
                 success: false,
@@ -202,8 +203,7 @@ exports.login = async (req, res) => {
             });
         }
 
-        
-
+        // If user exists and password matches
         if (user && await bcrypt.compare(password, user.password)) {
             const payload = {
                 email: user.email,
@@ -215,60 +215,120 @@ exports.login = async (req, res) => {
                 expiresIn: "2h"
             });
 
-            const roomDetails = await RoomDetails.find();
+            // Fetch all room details
+            let roomDetails = await RoomDetails.find();
+            let rentedRoom = null;
 
-            user.password = undefined; // Remove password from the response
+            user.password = undefined;
 
             const options = {
                 expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
                 httpOnly: true
             };
+
+            // Check if the user is a tenant
+            const tenant = await Tenant.findOne({ user: user._id });
+            console.log(tenant)
+            if (tenant) {
+                rentedRoom = await RoomDetails.findOne({ tenant: tenant._id })
+                    .populate('rentHistory'); 
+
+                const currentDate = new Date();
+                const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                console.log(rentedRoom)
+
+                if (rentedRoom) {
+                    const existingRentEntry = await RentDetails.findOne({
+                        tenantId: tenant._id,
+                        forMonth: currentMonth
+                    });
+                    console.log(existingRentEntry)
+
+                    if (!existingRentEntry) {
+                        const newRentEntry = new RentDetails({
+                            tenantId: tenant._id,
+                            amount: rentedRoom.rent,
+                            forMonth: currentMonth,
+                            dateOfPayment: null,
+                            status: 'Unpaid'
+                        });
+
+                        await newRentEntry.save();
+
+                        // Ensure rentHistory array exists and update it
+                        if (!Array.isArray(rentedRoom.rentHistory)) {
+                            rentedRoom.rentHistory = [];
+                        }
+
+                        await RoomDetails.findOneAndUpdate(
+                            { _id: rentedRoom._id },
+                            { $push: { rentHistory: newRentEntry._id } },
+                            { new: true }
+                        );
+                        tenant.rentHistory.push(newRentEntry._id);
+                        await tenant.save()
+                        console.log(tenant)
+
+
+                        // Re-populate rentHistory after update
+                        rentedRoom = await RoomDetails.findOne({ tenant: tenant._id })
+                            .populate('rentHistory');
+                    }
+                }
+            }
 
             return res.cookie("cookie", token, options).status(200).json({
                 success: true,
                 token,
                 user: {
                     ...user.toObject(),
-                    isAdmin: false, // User found in User collection
+                    isAdmin: false
                 },
-                roomDetails, // Include all RoomDetails in the response
+                roomDetails, 
+                rentedRoom, 
                 message: "Logged In Successfully"
             });
-        } else if (admin && await bcrypt.compare(password, admin.password)) {
+        } 
+        // If admin exists and password matches
+        else if (admin && await bcrypt.compare(password, admin.password)) {
             const payload = {
                 email: admin.email,
                 id: admin._id,
-                accountType: 'admin' // Or any other appropriate account type
+                accountType: 'admin'
             };
-
+        
             const token = jwt.sign(payload, process.env.JWT_SECRET, {
                 expiresIn: "2h"
             });
-
-            // Fetch all RoomDetails
+        
             const roomDetails = await RoomDetails.find();
-
-            admin.password = undefined; // Remove password from the response
-
+        
+            const populatedTenants = await Tenant.find({ _id: { $in: admin.tenants } })
+                .populate('rentHistory')
+                .populate('user')
+        
+            admin.password = undefined;
+        
             const options = {
                 expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
                 httpOnly: true
             };
-
+        
             return res.cookie("cookie", token, options).status(200).json({
                 success: true,
                 token,
                 user: {
                     ...admin.toObject(),
-                    isAdmin: true 
+                    isAdmin: true
                 },
-                roomDetails,
-                requests: admin.requests ,
-                tenants: admin.tenants, 
-
+                roomDetails, // Return all room details
+                requests: admin.requests,
+                tenants: populatedTenants, // Return populated tenants with rentHistory
                 message: "Logged In Successfully"
             });
-        } else {
+        } 
+        // If password is incorrect
+        else {
             return res.status(400).json({
                 success: false,
                 message: "Password is Invalid"
@@ -283,7 +343,6 @@ exports.login = async (req, res) => {
         });
     }
 };
-
 
 
 exports.getUser = async (req, res) => {

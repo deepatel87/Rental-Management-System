@@ -113,8 +113,8 @@ let ans = []
                   <li className="text-white hover:text-indigo-200">
                     <a>Home</a>
                   </li>
-                  <li className="text-white hover:text-indigo-200">
-                    <a>Pay Rent</a>
+                  <li className="text-white hover:text-indigo-200" onClick={()=>{navigate("pay-rent")}}>
+                    Pay Rent
                   </li>
                   <li className="text-white hover:text-indigo-200">
                     <a>About Us</a>

@@ -15,7 +15,8 @@ const RoomDetails = new mongoose.Schema({
 
     rentHistory:[{
         type:mongoose.Schema.Types.ObjectId ,
-        ref:"RentDetails"
+        ref:"RentDetails" ,
+        default:[]
     }] ,
 
     image:{

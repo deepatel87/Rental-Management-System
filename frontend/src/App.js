@@ -13,6 +13,7 @@ import UserProfile from "./components/UserProfile";
 import Admin from "./components/Admin";
 import Requests from './pages/Requests';
 import TenantProfile from "./components/TenantProfile";
+import Rent from "./components/Rent"
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -53,6 +54,10 @@ function App() {
       path: "/tenantprofile",
       element: <TenantProfile/>,
     },
+    {
+      path:"/pay-rent" ,
+      element:<Rent></Rent>
+    }
   ]);
 
   return <RouterProvider router={appRouter} />;

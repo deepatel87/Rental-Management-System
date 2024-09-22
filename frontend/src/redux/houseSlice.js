@@ -5,6 +5,7 @@ const houseSlice = createSlice({
   initialState: {
     houses: [],
     houseDetails: null,
+    rentedRoom:null
   },
   reducers: {
     setHouses: (state, action) => {
@@ -19,9 +20,13 @@ const houseSlice = createSlice({
     } ,
     removeHouse:(state , action)=>{
       state.houses=state.houses.filter((house)=>house._id !==action.payload)
+    } ,
+
+    setRentedRoom :(state , action)=>{
+      state.rentedRoom = action.payload ;
     }
   },
 });
 
-export const { setHouses, setHouseDetails , addHouse  , removeHouse} = houseSlice.actions;
+export const { setHouses, setHouseDetails , addHouse  , removeHouse , setRentedRoom} = houseSlice.actions;
 export default houseSlice.reducer;
