@@ -1,18 +1,19 @@
-import React, { useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { removeTenant } from '../redux/userSlice';
 import { addHouse } from '../redux/houseSlice';
+import {toast} from 'react-hot-toast'
+import {useNavigate} from 'react-router-dom'
 
 const TenantProfile = () => {
   const dispatch = useDispatch();
-  const { params } = useParams();
+  const navigate = useNavigate()
 
   const person = useSelector((store) => store.request.currTenant.user);
   const house = useSelector((store) => store.request.currTenant.room);
   const id = useSelector((store) => store.request.currTenant._id);
   const rentHistory = useSelector((store) => store.request.currTenant.rentHistory) || [];
+  const isAdmin = useSelector((store)=>store.user.isAdmin)
 
   async function removetenant() {
     const response = await fetch('http://localhost:4000/api/v1/admin/removeTenant', {
@@ -24,17 +25,31 @@ const TenantProfile = () => {
     });
 
     const resp = await response.json();
+
+    if(resp.success){
     dispatch(removeTenant(id));
+    toast.success("Tenant Removed Successfully")
     const newObj = { 
       ...house, 
       isAvailable: "Available" 
     };
-      
+    navigate("/")
     dispatch(addHouse(newObj));
+  } else {
+    toast.error("Couldn't Remove Tenant")
+
   }
 
-  // Filter unpaid rents
-  const unpaidRents = rentHistory.filter(rent => rent.status === 'Unpaid');
+  }
+
+  const unpaidRents = rentHistory.filter((rent) => rent.status === 'Unpaid');
+  const paidRents = rentHistory.filter((rent) => rent.status === 'Paid');
+
+  if(!isAdmin){
+    return (<div>
+      Nothing Here
+    </div>)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-purple-400 to-purple-600 p-5">
@@ -67,6 +82,23 @@ const TenantProfile = () => {
           </ul>
         ) : (
           <p className="text-gray-600">No unpaid rents.</p>
+        )}
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mb-5">
+        <h3 className="text-xl font-semibold text-purple-600">Paid Rents</h3>
+        {paidRents.length > 0 ? (
+          <ul className="mt-2">
+            {paidRents.map((rent) => (
+              <li key={rent._id} className="bg-green-100 rounded-md shadow p-4 mb-2">
+                <p className="text-gray-800">Amount: ₹{rent.amount}</p>
+                <p className="text-gray-600">For Month: {new Date(rent.forMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
+                <p className="text-gray-600">Date of Payment: {new Date(rent.dateOfPayment).toLocaleDateString()}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-600">No paid rents.</p>
         )}
       </div>
     </div>

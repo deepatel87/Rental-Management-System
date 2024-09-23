@@ -3,14 +3,13 @@ const User = require("../model/User") ;
 const Admin = require("../model/Admin")
 const {uploadImageToCloudinary} = require("../utils/imageUploader")
 const Request = require("../model/Request")
+const RentDetails = require('../model/RentDetails'); 
+
 
 exports.createRoom = async (req, res) => {
     try {
         const { type, price, additionalDetails  , details , address} = req.body;
         console.log(req.files)
-
-        
-
 
         const image = req.files.image ;
         console.log(image)
@@ -41,7 +40,6 @@ exports.createRoom = async (req, res) => {
 
         admin.roomDetails.push(savedRoom._id);
 
-        // Save the updated admin document
         await admin.save();
 
         res.status(200).json({
@@ -52,34 +50,16 @@ exports.createRoom = async (req, res) => {
         });
     } catch (err) {
         console.log(err)
-        res.status(500).json({ error: err.message });
-    }
-};
-
-
-
-exports.updateRoom = async (req, res) => {
-    try {
-        const { type, rent, additionalDetails  , id} = req.body;
-
-        const updatedRoom = await Room.findByIdAndUpdate(
-            id,
-            { type, rent, additionalDetails },
-            { new: true } 
-        );
-
-        if (!updatedRoom) {
-            return res.status(404).json({ message: "Room not found" });
-        }
-
-        res.status(200).json({
-            success:true ,
-            message:"Room Details Updatedd Successfully"
+        res.status(500).json({ 
+            success:false ,
+            error: err.message 
         });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
     }
 };
+
+
+
+
 
 
 exports.addTenantToRoom = async (req, res) => {
@@ -101,12 +81,17 @@ exports.addTenantToRoom = async (req, res) => {
         );
 
         if (!updatedRoom) {
-            return res.status(404).json({ message: "Room not found" });
+            return res.status(404).json({
+                 success:false ,
+                 message: "Room not found" });
         }
 
         res.status(200).json(updatedRoom);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({
+            success:false , 
+            error: err.message
+         });
     }
 };
 
@@ -117,28 +102,27 @@ exports.removeTenantFromRoom = async (req, res) => {
 
         const room = await Room.findById(roomId);
         if (!room) {
-            return res.status(404).json({ message: "Room not found" });
+            return res.status(404).json({ message: "Room not found"  , success:false});
         }
         console.log(room)
 
-        const tenantId = room.tenant; // Get the tenant ID from the room
+        const tenantId = room.tenant;
         console.log(tenantId)
 
 
         await RentDetails.deleteMany({ tenantId: tenantId });
 
-        // const updatedRoom = await Room.findByIdAndUpdate(
-        //     roomId,
-        //     {
-        //         tenant: null,
-        //         numberOfPeople: 0        
-        //     },
-        //     { new: true } 
-        // );
+        const updatedRoom = await Room.findByIdAndUpdate(
+            roomId,
+            {
+                tenant: null,
+            },
+            { new: true } 
+        );
 
-        res.status(200).json({ message: "Tenant removed successfully", updatedRoom });
+        res.status(200).json({ message: "Tenant removed successfully", updatedRoom , success:true });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message  , success:false});
     }
 };
 
@@ -150,7 +134,7 @@ exports.deleteRoom = async (req, res) => {
         const deletedRoom = await Room.findByIdAndDelete(roomId);
 
         if (!deletedRoom) {
-            return res.status(404).json({ message: "Room not found" });
+            return res.status(404).json({ message: "Room not found" , success:false });
         }
 
         await Request.deleteMany({ houseId: roomId });
@@ -158,72 +142,16 @@ exports.deleteRoom = async (req, res) => {
 
 
 
-        res.status(200).json({ message: "Room deleted successfully" });
+        res.status(200).json({ message: "Room deleted successfully"  , success:true});
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message , success:false });
     }
 };
 
 
-exports.sendRequest = async (req, res) => {
-    const { userId, roomId } = req.body;
-
-    if (!userId || !roomId) {
-        return res.status(400).json({
-            success: false,
-            message: "Missing Parameters"
-        });
-    }
-
-    try {
-        const admin = await Admin.findOne(); 
-        if (!admin) {
-            return res.status(404).json({
-                success: false,
-                message: "Admin not found"
-            });
-        }
-
-        const existingRequest = admin.requests.find(req => 
-            (req.reqModel === "User" && req._id.toString() === userId) ||
-            (req.reqModel === "RoomDetails" && req._id.toString() === roomId)
-        );
-
-        if (existingRequest) {
-            return res.status(400).json({
-                success: false,
-                message: "Request already exists"
-            });
-        }
-
-        admin.requests.push({
-            _id: userId,
-            reqModel: "User"
-        });
-
-        admin.requests.push({
-            _id: roomId,
-            reqModel: "RoomDetails"
-        });
-
-        await admin.save();
-
-        res.status(200).json({
-            success: true,
-            message: "Request added successfully",
-            data: admin
-        });
-
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-    }
-}
 
 
-const RentDetails = require('../model/RentDetails'); // Assuming RentDetails is the model where rent entries are stored.
+
 
 exports.updateRentStatus = async (req, res) => {
     try {

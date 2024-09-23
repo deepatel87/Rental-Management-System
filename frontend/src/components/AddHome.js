@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera } from 'lucide-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch , useSelector } from 'react-redux';
 import { addHouse } from '../redux/houseSlice';
+import {toast} from 'react-hot-toast';
 
 const AddHome = () => {
   const dispatch = useDispatch()
@@ -16,6 +17,8 @@ const AddHome = () => {
     image: null,
   });
   const [imagePreview, setImagePreview] = useState(null);
+  const isAdmin = useSelector((store)=>store.user.isAdmin)
+
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -31,7 +34,6 @@ const AddHome = () => {
     e.preventDefault();
     const formDataToSend = new FormData();
     
-    // Append all form fields to FormData
     Object.keys(formData).forEach(key => {
       if (key === 'image') {
         if (formData[key]) {
@@ -45,7 +47,7 @@ const AddHome = () => {
     try {
       const response = await fetch('http://localhost:4000/api/v1/room/addRoom', {
         method: 'POST',
-        body: formDataToSend, // Send FormData instead of JSON
+        body: formDataToSend, 
       });
 
       const resp = await response.json();
@@ -53,14 +55,19 @@ const AddHome = () => {
       if (resp.success) {
         console.log("Room details updated successfully");
         dispatch(addHouse(resp.data));
+        toast.success("Home Added Successfully")
         navigate("/");
       } else {
-        console.log(resp);
+        toast.error("Error Occured")
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+        toast.error(error)
     }
   };
+
+  if(!isAdmin){
+    return <div>Nothing To See Here</div>
+  }
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center p-8">

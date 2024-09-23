@@ -1,15 +1,18 @@
 import React, { useRef, useState } from "react";
-import { MdOutlineAddAPhoto } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch , useSelector } from "react-redux";
 import { setHouses } from '../redux/houseSlice';
 import { setUserType } from '../redux/userSlice';
+import { addUser } from "../redux/userSlice";
+import toast from "react-hot-toast";
 
 const Signup = () => {
   const dispatch = useDispatch();
   const inputRefs = useRef({});
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const user = useSelector((store)=>store.user.user)
+
 
   function checkParams() {
     const fullName = inputRefs.current["full-name"].value;
@@ -50,6 +53,8 @@ const Signup = () => {
         localStorage.setItem('db_token', resp.token);
         dispatch(setHouses(resp.roomDetails));
         dispatch(setUserType(resp.user.isAdmin));
+        dispatch(addUser(resp.user))
+        toast.success("Sign Up Successfull")
         navigate("/");
       } else {
         setError(resp.message);
@@ -80,6 +85,10 @@ const Signup = () => {
       console.log(err);
     }
   };
+
+  if(user){
+    navigate("/")
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500">

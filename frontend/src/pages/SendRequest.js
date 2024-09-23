@@ -1,206 +1,223 @@
 import React, { useRef, useState } from "react";
-import { MdOutlineAddAPhoto } from "react-icons/md";
+import { Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 const SendRequest = () => {
-  const inputRefs = useRef({});
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const houseData = useSelector((store) => store.house.houseDetails);
   const user = useSelector((store) => store.user.user);
-  console.log(user)
-  console.log(houseData._id)
 
-  function checkParams() { 
-    const values = {
-      aadhaarNumber: inputRefs.current["aadhaar-number"]?.value,
-      relativeNumber: inputRefs.current["relative-number"]?.value,
-      relation: inputRefs.current["relation"]?.value,
-      work: inputRefs.current["work"]?.value,
-      occupation: inputRefs.current["occupation"]?.value,
-      noOfPeople: inputRefs.current["no-of-people"]?.value,
-      houseId: houseData?._id,
-      userId: user?._id,
-    }; 
+  const [formData, setFormData] = useState({
+    aadhaarNumber: "",
+    relativeNumber: "",
+    relation: "",
+    work: "",
+    occupation: "",
+    noOfPeople: "",
+    aadhaarImage: null,
+  });
+  const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState("");
 
-    console.log(values)
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "aadhaarImage") {
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+      setImagePreview(URL.createObjectURL(files[0]));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
 
-    for (const key in values) {
-      if (!values[key]) {
-        setError("All fields are required");
-        return null;
+  const checkParams = () => {
+    for (const key in formData) {
+      if (formData[key] === "" || formData[key] === null) {
+        setError(`Please fill in the ${key.replace(/([A-Z])/g, " $1").toLowerCase()} field.`);
+        return false;
       }
     }
+    setError("");
+    return true;
+  };
 
-    return values;
-  }
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    if (!checkParams()) return;
 
-  async function submitHandler() {
-    if (user?.roomDetails) {
-      alert("You already have a room");
-      return;
+    const formDataToSend = new FormData();
+    for (const key in formData) {
+      formDataToSend.append(key, formData[key]);
     }
-
-    const data = checkParams();
-    if (!data) return;
-
-    const formData = new FormData();
-
-    Object.keys(data).forEach(key => {
-      formData.append(key, data[key]);
-    });
-
-    const aadhaarFile = inputRefs.current["aadhaarImage"].files[0];
-
-   
-    if (aadhaarFile) {
-      formData.append("aadhaarImage", aadhaarFile);
-    } else {
-      setError("Please upload your Aadhaar image");
-      return;
-    }
+    formDataToSend.append("houseId", houseData._id);
+    formDataToSend.append("userId", user._id);
 
     try {
       const response = await fetch("http://localhost:4000/api/v1/auth/updateProfile", {
         method: "POST",
-        body: formData,
+        body: formDataToSend,
       });
 
-      const resp = await response.json();
-      console.log(resp);
-      if (resp.success) {
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Request sent successfully");
         navigate("/");
       } else {
-        setError(resp.message);
+        setError(data.message || "Failed to send request");
+        toast.error(data.message || "Failed to send request");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      setError("An error occurred while submitting the form");
+      setError("An error occurred while sending the request");
+      toast.error("Error Occured");
     }
+  };
+
+  if(!user){
+    return <div>Nothing Here</div>
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#bfdbf7]">
-      <div className="w-full max-w-4xl p-8 space-y-6 bg-[#466b90] rounded-lg shadow-md mt-12">
-        <div className="text-center text-red-500">
-          <p>{error}</p>
-        </div>
+    <div className="w-full min-h-screen bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center p-8">
+      <div className="w-full max-w-3xl bg-white rounded-lg shadow-xl p-8 overflow-hidden">
+        <h1 className="text-4xl font-bold text-purple-800 mb-8 text-center">Send Request</h1>
+        
+      
 
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[250px]">
-            <label htmlFor="aadhaar-number" className="block text-sm font-medium text-white">
+        <form onSubmit={submitHandler} className="space-y-6">
+          <div>
+            <label htmlFor="aadhaarNumber" className="block text-sm font-medium text-gray-700">
               Aadhaar Number
             </label>
             <input
-              id="aadhaar-number"
-              name="aadhaar-number"
               type="text"
+              id="aadhaarNumber"
+              name="aadhaarNumber"
+              value={formData.aadhaarNumber}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               placeholder="Enter your Aadhaar number"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["aadhaar-number"] = el)}
+              required
             />
           </div>
 
-          <div className="flex-1 min-w-[250px]">
-            <label htmlFor="relative-number" className="block text-sm font-medium text-white">
+          <div>
+            <label htmlFor="relativeNumber" className="block text-sm font-medium text-gray-700">
               Relative No.
             </label>
             <input
-              id="relative-number"
-              name="relative-number"
               type="text"
+              id="relativeNumber"
+              name="relativeNumber"
+              value={formData.relativeNumber}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               placeholder="Enter relative's number"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["relative-number"] = el)}
+              required
             />
           </div>
 
-          <div className="flex-1 min-w-[250px]">
-            <label htmlFor="relation" className="block text-sm font-medium text-white">
+          <div>
+            <label htmlFor="relation" className="block text-sm font-medium text-gray-700">
               Relation
             </label>
             <input
+              type="text"
               id="relation"
               name="relation"
-              type="text"
+              value={formData.relation}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               placeholder="Enter relation"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["relation"] = el)}
+              required
             />
           </div>
 
-          <div className="flex-1 min-w-[250px]">
-            <label htmlFor="work" className="block text-sm font-medium text-white">
+          <div>
+            <label htmlFor="work" className="block text-sm font-medium text-gray-700">
               Where do you work
             </label>
             <input
+              type="text"
               id="work"
               name="work"
-              type="text"
+              value={formData.work}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               placeholder="Enter place of work"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["work"] = el)}
+              required
             />
           </div>
 
-          <div className="flex-1 min-w-[250px]">
-            <label htmlFor="occupation" className="block text-sm font-medium text-white">
+          <div>
+            <label htmlFor="occupation" className="block text-sm font-medium text-gray-700">
               Occupation
             </label>
             <input
+              type="text"
               id="occupation"
               name="occupation"
-              type="text"
+              value={formData.occupation}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               placeholder="Enter occupation"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["occupation"] = el)}
+              required
             />
           </div>
 
-          <div className="flex-1 min-w-[250px]">
-            <label htmlFor="no-of-people" className="block text-sm font-medium text-white">
+          <div>
+            <label htmlFor="noOfPeople" className="block text-sm font-medium text-gray-700">
               No of People
             </label>
             <input
-              id="no-of-people"
-              name="no-of-people"
-              type="text"
+              type="number"
+              id="noOfPeople"
+              name="noOfPeople"
+              value={formData.noOfPeople}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               placeholder="Enter number of people"
-              className="w-full px-3 py-2 mt-1 text-white outline-none bg-[#0f2740] border border-gray-500 rounded-md focus:ring focus:ring-indigo-400 focus:border-indigo-400"
-              ref={(el) => (inputRefs.current["no-of-people"] = el)}
+              required
             />
           </div>
-        </div>
 
-        {/* File Upload Inputs */}
-        <div className="flex flex-col space-[1rem] pb-4 mt-4">
-         
-          <p className="text-[1.1rem] text-white mt-8">Aadhar Card :</p>
-          <div className="w-[5rem] h-[5rem] border-[#0f2740] border flex justify-center items-center mt-[0.5rem]">
-            <label
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white border-[#0f2740] border-2"
-              htmlFor="img-upload-aadhaar"
-            >
-              <MdOutlineAddAPhoto fill="black" className="py-[0.6rem]" size={44} />
+          <div>
+            <label htmlFor="aadhaarImage" className="block text-sm font-medium text-gray-700">
+              Aadhaar Card Image
             </label>
-            <input
-              type="file"
-              className="hidden"
-              id="img-upload-aadhaar"
-              ref={(el) => (inputRefs.current["aadhaarImage"] = el)}
-            />
+            <div className="mt-1 flex items-center">
+              <label
+                htmlFor="aadhaarImage"
+                className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              >
+                <Camera className="w-5 h-5 inline-block mr-2" />
+                Choose file
+              </label>
+              <input
+                type="file"
+                id="aadhaarImage"
+                name="aadhaarImage"
+                onChange={handleChange}
+                className="sr-only"
+                accept="image/*"
+                required
+              />
+            </div>
+            {imagePreview && (
+              <img src={imagePreview} alt="Aadhaar Card Preview" className="mt-4 h-32 w-auto rounded-md shadow-md" />
+            )}
           </div>
-        </div>
 
-        <div>
-          <button
-            className="w-full px-4 py-2 mt-4 font-bold text-white bg-[#0f2740] rounded-md hover:bg-[#1a3241] focus:ring focus:ring-indigo-400"
-            onClick={submitHandler}
-          >
-            Send Request
-          </button>
-        </div>
+          <div>
+            <button
+              type="submit"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            >
+              Send Request
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

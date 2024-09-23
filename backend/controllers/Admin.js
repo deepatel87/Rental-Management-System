@@ -55,7 +55,6 @@ exports.rejectRequest = async (req, res) => {
             });
         }
 
-        // Find the request and remove it from the Request model
         const request = await Request.findByIdAndDelete(requestId);
 
         if (!request) {
@@ -67,8 +66,8 @@ exports.rejectRequest = async (req, res) => {
 
         const admin = await Admin.findOneAndUpdate(
             {}, 
-            { $pull: { 'requests': requestId } }, // Remove request ID from requests array
-            { new: true } // Return the updated document
+            { $pull: { 'requests': requestId } }, 
+            { new: true } 
         );
 
         if (!admin) {
@@ -97,7 +96,6 @@ exports.rejectRequest = async (req, res) => {
 exports.acceptRequest = async (req, res) => {
     try {
         const { requestId } = req.body;
-        console.log("Hiiiiiiiiiiiiii");
 
         if (!requestId) {
             return res.status(400).json({
@@ -146,16 +144,15 @@ exports.acceptRequest = async (req, res) => {
             request.houseId._id,
             { 
                 isAvailable: "Not Available", 
-                tenant: tenant._id // Add the tenant ID reference to the RoomDetails
+                tenant: tenant._id 
             }
         );
 
-        // Delete any other requests from the same user
         await Request.deleteMany({ userId: request.userId._id });
 
         await User.findByIdAndUpdate(
             request.userId._id,
-            { roomDetails: request.houseId._id } // Pass the room ID to the user's room details
+            { roomDetails: request.houseId._id } 
         );
 
         const populatedTenant = await Tenant.findById(tenant._id)
@@ -164,7 +161,7 @@ exports.acceptRequest = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: 'Request accepted and tenant added successfully, other requests from the same user deleted' ,
+            message: 'Request accepted ' ,
             populatedTenant:populatedTenant 
 
         });
@@ -200,28 +197,23 @@ exports.removeTenant = async (req, res) => {
 
         const { user, room } = tenant;
 
-        // Remove rent details related to the tenant
         await RentDetails.deleteMany({ tenantId: tenantId });
 
-        // Update user to unset roomDetails
         await User.findByIdAndUpdate(user._id, {
             $unset: { roomDetails: "" }
         });
 
-        // Update admin to pull tenant from its list
         await Admin.findOneAndUpdate(
             {},
             { $pull: { tenants: tenantId } },
             { new: true }
         );
 
-        // Update room details to set availability and unset tenant
         await RoomDetails.findByIdAndUpdate(room._id, {
             $set: { isAvailable: "Available" },
             $unset: { tenant: "" }
         });
 
-        // Delete the tenant
         await Tenant.findByIdAndDelete(tenantId);
 
         res.status(200).json({

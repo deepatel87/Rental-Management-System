@@ -1,14 +1,16 @@
 import React, { useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeRequest } from '../redux/requestSlice';
 import { addTenant } from '../redux/userSlice';
 import { removeHouse } from '../redux/houseSlice';
 import { useNavigate } from 'react-router-dom';
+import {toast} from 'react-hot-toast'
 
 const UserProfile = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate() ;
+  const isAdmin = useSelector((store)=>store.user.isAdmin)
+
 
   let person = useSelector((store) => store.request.currRequest);
   let house = person.house._id;
@@ -24,26 +26,7 @@ const UserProfile = () => {
     numberOfPeople: null,
   });
 
-  async function updateProfile() {
-    const formData = {
-      aadharNo: inputRefs.current.aadharNo?.value,
-      address: inputRefs.current.address?.value,
-      relativeNo: inputRefs.current.relativeNo?.value,
-      relation: inputRefs.current.relation?.value,
-      occupation: inputRefs.current.occupation?.value,
-      numberOfPeople: inputRefs.current.numberOfPeople?.value,
-    };
-    const response = await fetch('http://localhost:4000/api/v1/auth/updateProfile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-
-    const resp = await response.json();
-    if (resp.success) {
-      localStorage.setItem('db_token', resp.token);
-    }
-  }
+ 
 
   async function acceptHandler() {
     const response = await fetch('http://localhost:4000/api/v1/admin/acceptRequest', {
@@ -53,10 +36,17 @@ const UserProfile = () => {
     });
 
     const resp = await response.json();
+
+    if(resp.success){
     dispatch(addTenant(resp.populatedTenant));
     dispatch(removeRequest({ req: "accept", userId: person._id }));
     dispatch(removeHouse(house));
-    navigate("/requests")
+    toast.success("Request Accepted")
+
+    navigate("/")
+    } else {
+      toast.error("Couldn't Accept Request")
+    }
   }
 
   async function rejectHandler() {
@@ -66,9 +56,21 @@ const UserProfile = () => {
       body: JSON.stringify({ requestId: id }),
     });
 
-    dispatch(removeRequest({ req: "reject", reqId: id }));
-    navigate("/requests")
+    const data = await response.json()
 
+    if(data.success){
+
+    dispatch(removeRequest({ req: "reject", reqId: id }));
+    toast.success("Request Rejected")
+    navigate("/")
+    } else {
+      toast.error("Couldn't Reject Request")
+    }
+
+  }
+
+  if(!isAdmin){
+    return <div>Nothing Here</div>
   }
 
 

@@ -1,12 +1,15 @@
 import React, { useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch , useSelector} from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { setHouses } from '../redux/houseSlice';
 import { setUserType, addUser, setTenants } from '../redux/userSlice';
 import { setRequests } from '../redux/requestSlice';
 import { setRentedRoom } from '../redux/houseSlice';
+import toast from 'react-hot-toast';
 
 const Login = () => {
+  const user = useSelector((store)=>store.user.user)
+
   const inputRefs = useRef({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -35,6 +38,7 @@ const Login = () => {
 
     if (resp.success) {
       console.log(resp)
+      toast.success("Logged In")
       localStorage.setItem('db_token', resp.token);
       dispatch(setHouses(resp.roomDetails));
       navigate('/');
@@ -44,9 +48,15 @@ const Login = () => {
       dispatch(setRentedRoom(resp.rentedRoom?.rentHistory));
 
       dispatch(addUser(resp.user));
+    
     } else {
+      toast.error("Invalid Credentials")
       console.log(resp);
     }
+  }
+
+  if(user){
+    navigate("/")
   }
 
   return (

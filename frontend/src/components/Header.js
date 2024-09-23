@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrTenant } from "../redux/requestSlice";
 
-export default function Header({ userType }) {
+export default function Header() {
   const dispatch = useDispatch();
   const [navbar, setNavbar] = useState(false);
   const navigate = useNavigate();
@@ -147,9 +147,7 @@ export default function Header({ userType }) {
                 )
               )}
             </div>
-            <button className="px-7 py-3 text-white bg-purple-600 rounded-md shadow hover:bg-purple-800 cursor-pointer">
-              Search
-            </button>
+           
             {user && (
               <>
                 <Link

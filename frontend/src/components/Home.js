@@ -2,19 +2,24 @@ import { useSelector } from "react-redux";
 import Header from "./Header";
 import HouseCard from "./HouseCard";
 import { useGetUser } from "../hooks/useGetUser";
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
+  const navigate = useNavigate()
   useGetUser()
 
 
-  const userType = useSelector((store) => store.user?.user);
+  const user = useSelector((store) => store.user?.user);
 
   let houseData = useSelector((store) => store.house?.houses);
   houseData = houseData.filter((house) => house?.isAvailable === "Available");
+  if(!user){
+    navigate("/login")
+  }
 
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-      <Header userType={userType} />
+      <Header />
       <div className="w-11/12 mx-auto mt-10 pb-16">
         <h1 className="text-4xl font-extrabold text-center text-indigo-800 mb-10 tracking-wide">
           Luxurious Homes for Rent

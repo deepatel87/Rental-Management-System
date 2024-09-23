@@ -1,10 +1,13 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setRentedRoom } from '../redux/houseSlice';
+import { useNavigate } from 'react-router-dom';
+import {toast} from 'react-hot-toast'
 
 const Rent = () => {
     const rentedRoom = useSelector((store) => store.house?.rentedRoom);
     const dispatch = useDispatch();
+    const navigate = useNavigate() ;
 
     if (!rentedRoom) {
         return <div className="text-center text-lg text-gray-600">Its Empty here</div>;
@@ -20,7 +23,15 @@ const Rent = () => {
         });
 
         const data = await response.json();
+
+        if(data.success){
         dispatch(setRentedRoom(data.rentEntry));
+        toast.success("Rent Paid Successfully")
+        navigate("/")
+        } else {
+            toast.error("Error while paying Rent")
+
+        }
     };
 
     return (

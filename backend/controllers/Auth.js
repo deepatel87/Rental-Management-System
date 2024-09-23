@@ -298,6 +298,7 @@ exports.login = async (req, res) => {
             const populatedTenants = await Tenant.find({ _id: { $in: admin.tenants } })
                 .populate('rentHistory')
                 .populate('user')
+                .populate('room')
         
             admin.password = undefined;
         
@@ -541,7 +542,6 @@ exports.updateProfile = async (req, res) => {
         if (occupation !== undefined) user.occupation = occupation;
         if (noOfPeople !== undefined) user.noOfPeople = noOfPeople;
         if (houseId !== undefined) user.houseId = houseId;
-        // if (photo !== undefined) user.image = photo;
 
         const aadharUpdatedImage = await uploadImageToCloudinary(aadharImage , process.env.FOLDER_NAME) ;
         user.aadharImage = aadharUpdatedImage.secure_url;

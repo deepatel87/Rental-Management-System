@@ -5,6 +5,7 @@ import { setHouseDetails } from "../redux/houseSlice";
 import { setcurrRequest } from '../redux/requestSlice';
 
 const Requests = () => {
+  const isAdmin = useSelector((store)=>store.user.isAdmin)
   const requests = useSelector((store) => store.request.requests);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -20,6 +21,10 @@ const Requests = () => {
     navigate("/profile"); 
   }
 
+  if(!isAdmin){
+    return <div>Nothing Here</div>
+  }
+
   return (
     <div className="p-6 bg-gradient-to-r from-purple-300 to-purple-500 min-h-screen">
       <h1 className="text-3xl font-bold text-white mb-6 text-center">Requests</h1>
@@ -30,11 +35,7 @@ const Requests = () => {
             className="flex items-center justify-between bg-white p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105"
           >
             <div className="flex items-center space-x-4">
-              <img
-                src={request.userId.image}
-                alt={request.userId.fullName}
-                className="w-16 h-16 rounded-full object-cover border-2 border-purple-500"
-              />
+             
               <div>
                 <h2 className="text-lg font-semibold text-purple-800">{request.userId.fullName}</h2>
                 <p className="text-gray-600">{request.houseId.name}</p>
