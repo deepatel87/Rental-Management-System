@@ -20,16 +20,16 @@ const HouseCard = ({ houseData }) => {
         />
       </div>
       <div className="p-5">
-        <h2 className="text-2xl font-bold text-indigo-700 mb-2">
+        <h2 className="text-2xl font-bold text-purple-700 mb-2">
           {houseData?.type}
         </h2>
         <p className="text-gray-600 mb-4">{houseData?.details}</p>
         <div className="flex justify-between items-center mt-4">
-          <span className="text-2xl font-extrabold text-indigo-600">
+          <span className="text-2xl font-extrabold text-purple-600">
             ₹{houseData?.rent}
           </span>
           <button
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-4 py-2 rounded-full hover:from-purple-700 hover:to-purple-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
             onClick={() => {
               dispatch(setHouseDetails(houseData));
               navigate("/housedetails/:edit");

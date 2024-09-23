@@ -14,6 +14,7 @@ import Admin from "./components/Admin";
 import Requests from './pages/Requests';
 import TenantProfile from "./components/TenantProfile";
 import Rent from "./components/Rent"
+import AddHome from "./components/AddHome";
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -38,7 +39,7 @@ function App() {
       element: <SendRequest></SendRequest>,
     },
     {
-      path: "/userprofile/:params",
+      path: "/profile",
       element: <UserProfile></UserProfile>,
     },
     {
@@ -57,6 +58,10 @@ function App() {
     {
       path:"/pay-rent" ,
       element:<Rent></Rent>
+    },
+    {
+      path:"/addroom" ,
+      element:<AddHome></AddHome>
     }
   ]);
 

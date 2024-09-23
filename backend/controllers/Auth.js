@@ -163,7 +163,6 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Find user and admin by email
         const user = await User.findOne({ email }).populate("roomDetails");
         const admin = await Admin.findOne({ email })
             .populate({
@@ -195,7 +194,6 @@ exports.login = async (req, res) => {
                 ]
             });
 
-        // If neither user nor admin found
         if (!user && !admin) {
             return res.status(403).json({
                 success: false,
@@ -203,7 +201,6 @@ exports.login = async (req, res) => {
             });
         }
 
-        // If user exists and password matches
         if (user && await bcrypt.compare(password, user.password)) {
             const payload = {
                 email: user.email,
@@ -215,7 +212,6 @@ exports.login = async (req, res) => {
                 expiresIn: "2h"
             });
 
-            // Fetch all room details
             let roomDetails = await RoomDetails.find();
             let rentedRoom = null;
 
@@ -226,7 +222,6 @@ exports.login = async (req, res) => {
                 httpOnly: true
             };
 
-            // Check if the user is a tenant
             const tenant = await Tenant.findOne({ user: user._id });
             console.log(tenant)
             if (tenant) {
@@ -255,7 +250,6 @@ exports.login = async (req, res) => {
 
                         await newRentEntry.save();
 
-                        // Ensure rentHistory array exists and update it
                         if (!Array.isArray(rentedRoom.rentHistory)) {
                             rentedRoom.rentHistory = [];
                         }
@@ -270,7 +264,6 @@ exports.login = async (req, res) => {
                         console.log(tenant)
 
 
-                        // Re-populate rentHistory after update
                         rentedRoom = await RoomDetails.findOne({ tenant: tenant._id })
                             .populate('rentHistory');
                     }
@@ -289,7 +282,6 @@ exports.login = async (req, res) => {
                 message: "Logged In Successfully"
             });
         } 
-        // If admin exists and password matches
         else if (admin && await bcrypt.compare(password, admin.password)) {
             const payload = {
                 email: admin.email,
@@ -321,13 +313,12 @@ exports.login = async (req, res) => {
                     ...admin.toObject(),
                     isAdmin: true
                 },
-                roomDetails, // Return all room details
+                roomDetails,
                 requests: admin.requests,
-                tenants: populatedTenants, // Return populated tenants with rentHistory
+                tenants: populatedTenants, 
                 message: "Logged In Successfully"
             });
         } 
-        // If password is incorrect
         else {
             return res.status(400).json({
                 success: false,
@@ -347,13 +338,12 @@ exports.login = async (req, res) => {
 
 exports.getUser = async (req, res) => {
     try {
-        console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
         const token = req.header('Authorization').split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        console.log(token)
 
-        if (!decoded    ) {
+        req.user = decoded;
+
+        if (!decoded) {
             return res.status(404).json({
                 success: false,
                 message: "Authentication Failed. Kindly Log In."
@@ -361,55 +351,159 @@ exports.getUser = async (req, res) => {
         }
 
         const id = req.user.userId || req.user.id;
-        const user = await User.findById(id)
+        const email = req.user.email ;
+        const user = await User.findOne({ email }).populate("roomDetails");
+        const admin = await Admin.findOne({ email })
             .populate({
-                path: 'playLists',
-                populate: {
-                    path: 'songs',
-                    select: '-_id' 
-                },
-                select: '-_id' 
+                path: 'requests',
+                populate: [
+                    {
+                        path: 'userId',
+                        model: 'User',
+                        select: '-password'
+                    },
+                    {
+                        path: 'houseId',
+                        model: 'RoomDetails'
+                    }
+                ]
             })
             .populate({
-                path: 'likedSongs', 
-                select: '-_id'
-            })
-            .populate({
-                path: 'datingProfile',
-                select: '-_id' 
-            })
-            .populate({
-                path:"history" ,
-                select:"-_id"
-            })
-            .select('-_id -password') 
-            .exec();
+                path: 'tenants',
+                populate: [
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select: '-password'
+                    },
+                    {
+                        path: 'room',
+                        model: 'RoomDetails'
+                    }
+                ]
+            });
 
-            console.log("hii")
-            console.log(user)
-            
-
-
-
-        if (!user) {
-            return res.status(404).json({
+        if (!user && !admin) {
+            return res.status(403).json({
                 success: false,
-                message: "No such user exists."
+                message: "User Doesn't exist"
             });
         }
 
-        return res.status(200).json({
-            success: true,
-            data: user
-        });
+        if (user) {
+          
 
-    } catch (err) {
-        console.log(err);
+            
+            let roomDetails = await RoomDetails.find();
+            let rentedRoom = null;
+
+            user.password = undefined;
+
+         
+
+            const tenant = await Tenant.findOne({ user: user._id });
+            console.log(tenant)
+            if (tenant) {
+                rentedRoom = await RoomDetails.findOne({ tenant: tenant._id })
+                    .populate('rentHistory'); 
+
+                const currentDate = new Date();
+                const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                console.log(rentedRoom)
+
+                if (rentedRoom) {
+                    const existingRentEntry = await RentDetails.findOne({
+                        tenantId: tenant._id,
+                        forMonth: currentMonth
+                    });
+                    console.log(existingRentEntry)
+
+                    if (!existingRentEntry) {
+                        const newRentEntry = new RentDetails({
+                            tenantId: tenant._id,
+                            amount: rentedRoom.rent,
+                            forMonth: currentMonth,
+                            dateOfPayment: null,
+                            status: 'Unpaid'
+                        });
+
+                        await newRentEntry.save();
+
+                        if (!Array.isArray(rentedRoom.rentHistory)) {
+                            rentedRoom.rentHistory = [];
+                        }
+
+                        await RoomDetails.findOneAndUpdate(
+                            { _id: rentedRoom._id },
+                            { $push: { rentHistory: newRentEntry._id } },
+                            { new: true }
+                        );
+                        tenant.rentHistory.push(newRentEntry._id);
+                        await tenant.save()
+                        console.log(tenant)
+
+
+                        rentedRoom = await RoomDetails.findOne({ tenant: tenant._id })
+                            .populate('rentHistory');
+                    }
+                }
+            }
+
+            return res.status(200).json({
+                success: true,
+                user: {
+                    ...user.toObject(),
+                    isAdmin: false
+                },
+                roomDetails, 
+                rentedRoom, 
+                message: "Logged In Successfully"
+            });
+        } 
+        else if (admin) {
+           
+        
+          
+        
+            const roomDetails = await RoomDetails.find();
+        
+            const populatedTenants = await Tenant.find({ _id: { $in: admin.tenants } })
+                .populate('rentHistory')
+                .populate('user')
+        
+            admin.password = undefined;
+        
+            
+        
+            return res.status(200).json({
+                success: true,
+                user: {
+                    ...admin.toObject(),
+                    isAdmin: true
+                },
+                roomDetails, 
+                requests: admin.requests,
+                tenants: populatedTenants, 
+                message: "Logged In Successfully"
+            });
+        } 
+        else {
+            return res.status(400).json({
+                success: false,
+                message: "couldnt Authenticate"
+            });
+        }
+
+    
+    
+    }catch(err){
+        console.log(err)
 
         return res.status(400).json({
-            success: false,
-            message: "Couldn't fetch user data."
-        });
+            success:false ,
+            message:"Token Expired "
+        })
+
     }
 };
 

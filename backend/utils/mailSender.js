@@ -17,8 +17,6 @@ const mailSender = async(email , title , body)=>{
             html:`${body}`
         })
 
-        console.log(info)
-        console.log(1111111111111111111)
         
     } catch (error) {
         console.log(error)

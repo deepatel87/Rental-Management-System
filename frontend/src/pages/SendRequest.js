@@ -47,12 +47,10 @@ const SendRequest = () => {
 
     const formData = new FormData();
 
-    // Append all text fields
     Object.keys(data).forEach(key => {
       formData.append(key, data[key]);
     });
 
-    // Append file fields
     const aadhaarFile = inputRefs.current["aadhaarImage"].files[0];
 
    
@@ -177,11 +175,7 @@ const SendRequest = () => {
 
         {/* File Upload Inputs */}
         <div className="flex flex-col space-[1rem] pb-4 mt-4">
-          <p className="text-[1.1rem] text-white">Your Photo :</p>
-          <div className="w-[5rem] h-[5rem] border-[#0f2740] border flex justify-center items-center mt-[0.5rem]">
-           
-          </div>
-
+         
           <p className="text-[1.1rem] text-white mt-8">Aadhar Card :</p>
           <div className="w-[5rem] h-[5rem] border-[#0f2740] border flex justify-center items-center mt-[0.5rem]">
             <label

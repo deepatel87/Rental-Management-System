@@ -1,11 +1,15 @@
 import { useSelector } from "react-redux";
 import Header from "./Header";
 import HouseCard from "./HouseCard";
+import { useGetUser } from "../hooks/useGetUser";
 
 const Home = () => {
-  const userType = useSelector((store) => store.user.user);
+  useGetUser()
 
-  let houseData = useSelector((store) => store.house.houses);
+
+  const userType = useSelector((store) => store.user?.user);
+
+  let houseData = useSelector((store) => store.house?.houses);
   houseData = houseData.filter((house) => house?.isAvailable === "Available");
 
   return (

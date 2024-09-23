@@ -1,40 +1,31 @@
 import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { removeRequest } from '../redux/requestSlice';
 import { addTenant } from '../redux/userSlice';
 import { removeHouse } from '../redux/houseSlice';
+import { useNavigate } from 'react-router-dom';
 
 const UserProfile = () => {
-  const dispatch = useDispatch()
-  const { params } = useParams();
-  const profile = decodeURIComponent(params);
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   let person = useSelector((store) => store.request.currRequest);
-  let house = person.house._id
-  console.log(person)
-
-  const id = person.id ;
-  person=person.person
-  console.log(person)
-  console.log(person.aadharImage)
+  let house = person.house._id;
+  const id = person.id;
+  person = person.person;
 
   const inputRefs = useRef({
-    name: null,
-    contactNo: null,
-    email: null,
     aadharNo: null,
     address: null,
     relativeNo: null,
     relation: null,
     occupation: null,
     numberOfPeople: null,
-  }); 
+  });
 
   async function updateProfile() {
     const formData = {
-  
       aadharNo: inputRefs.current.aadharNo?.value,
       address: inputRefs.current.address?.value,
       relativeNo: inputRefs.current.relativeNo?.value,
@@ -43,193 +34,153 @@ const UserProfile = () => {
       numberOfPeople: inputRefs.current.numberOfPeople?.value,
     };
     const response = await fetch('http://localhost:4000/api/v1/auth/updateProfile', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     });
 
     const resp = await response.json();
-    console.log(resp)
-
     if (resp.success) {
       localStorage.setItem('db_token', resp.token);
-      console.log('Profile updated successfully');
-    } else {
-      console.log(resp);
     }
   }
 
- async function acceptHandler() {
-  console.log(id)
+  async function acceptHandler() {
+    const response = await fetch('http://localhost:4000/api/v1/admin/acceptRequest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId: id }),
+    });
 
-  const response = await fetch('http://localhost:4000/api/v1/admin/acceptRequest', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-      
-    },
-    body: JSON.stringify({requestId:id}),
-  });
-
-  const resp = await response.json()
-  console.log(resp)
-
-    dispatch(addTenant(resp.populatedTenant))
-    dispatch(removeRequest({req:"accept"  , userId:person._id}))
-    dispatch(removeHouse(house))
-
-
-
-
+    const resp = await response.json();
+    dispatch(addTenant(resp.populatedTenant));
+    dispatch(removeRequest({ req: "accept", userId: person._id }));
+    dispatch(removeHouse(house));
+    navigate("/requests")
   }
 
   async function rejectHandler() {
-    console.log(id)
     const response = await fetch('http://localhost:4000/api/v1/admin/rejectRequest', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-        
-      },
-      body: JSON.stringify({requestId:id }),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId: id }),
     });
-  
-    const resp = await response.json();
-    console.log(resp)
-    dispatch(removeRequest({req:"reject"  , reqId:id}))
 
+    dispatch(removeRequest({ req: "reject", reqId: id }));
+    navigate("/requests")
 
   }
 
-  if (profile !== ':user' && profile !== ':admin') return <div>Page Not Found</div>;
 
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 mt-8 text-black">
-    <h2 className="text-2xl font-bold mb-4">User Profile</h2>
-  
-    <div className="bg-gray-50 p-4 rounded-lg shadow mb-8">
-      <h3 className="text-xl font-semibold mb-4">User Details</h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block font-semibold mb-2">Name:</label>
-          <input
-            type="text"
-            ref={(el) => (inputRefs.current.name = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.fullName || 'Name'}
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">Contact No:</label>
-          <input
-            type="text"
-            ref={(el) => (inputRefs.current.contactNo = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.contactNumber || 'Contact No'}
-          />
-        </div>
-        <div className="col-span-2">
-          <label className="block font-semibold mb-2">Email:</label>
-          <input
-            type="email"
-            ref={(el) => (inputRefs.current.email = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.email || 'Email'}
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">Aadhar No:</label>
-          <input
-            type="text"
-            ref={(el) => (inputRefs.current.aadharNo = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.aadharNumber || 'Aadhar No'}
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">Relative No.:</label>
-          <input
-            type="text"
-            ref={(el) => (inputRefs.current.relativeNo = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.relativeNumber || 'Relative No.'}
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">Work.:</label>
-          <input
-            type="text"
-            ref={(el) => (inputRefs.current.work = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.work || 'Work'}
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">Relation:</label>
-          <input
-            type="text"
-            ref={(el) => (inputRefs.current.relation = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.relation || 'Relation'}
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">Occupation:</label>
-          <input
-            type="text"
-            ref={(el) => (inputRefs.current.occupation = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.occupation || 'Occupation'}
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">No. of People:</label>
-          <input
-            type="number"
-            ref={(el) => (inputRefs.current.numberOfPeople = el)}
-            className="border border-gray-300 rounded w-full p-2 placeholder-black"
-            disabled
-            placeholder={person?.noOfPeople || 'No. of People'}
-          />
-        </div>
-        <div className="col-span-2 flex justify-center">
-          <div className="w-24 h-24 border border-gray-300 rounded bg-gray-100 flex items-center justify-center" onClick={()=>{window.open(person?.aadharImage+"" , "_blank")}}>
-            <img src={person?.aadharImage+""} alt=''/> 
+    <div className="max-w-3xl mx-auto bg-gradient-to-r from-purple-300 to-purple-500 min-h-screen p-6 text-white">
+      <h2 className="text-3xl font-bold mb-6 text-center">User Profile</h2>
+      <div className="bg-white p-6 rounded-lg shadow-lg text-black">
+        <h3 className="text-2xl font-semibold mb-4">User Details</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block font-semibold mb-2">Name:</label>
+            <input
+              type="text"
+              ref={(el) => (inputRefs.current.name = el)}
+              className="border border-gray-300 rounded w-full p-2 placeholder-gray-500"
+              disabled
+              placeholder={person?.fullName || 'Name'}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">Contact No:</label>
+            <input
+              type="text"
+              ref={(el) => (inputRefs.current.contactNo = el)}
+              className="border border-gray-300 rounded w-full p-2 placeholder-gray-500"
+              disabled
+              placeholder={person?.contactNumber || 'Contact No'}
+            />
+          </div>
+          <div className="col-span-2">
+            <label className="block font-semibold mb-2">Email:</label>
+            <input
+              type="email"
+              ref={(el) => (inputRefs.current.email = el)}
+              className="border border-gray-300 rounded w-full p-2 placeholder-gray-500"
+              disabled
+              placeholder={person?.email || 'Email'}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">Aadhar No:</label>
+            <input
+              type="text"
+              ref={(el) => (inputRefs.current.aadharNo = el)}
+              className="border border-gray-300 rounded w-full p-2 placeholder-gray-500"
+              disabled
+              placeholder={person?.aadharNumber || 'Aadhar No'}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">Relative No.:</label>
+            <input
+              type="text"
+              ref={(el) => (inputRefs.current.relativeNo = el)}
+              className="border border-gray-300 rounded w-full p-2 placeholder-gray-500"
+              disabled
+              placeholder={person?.relativeNumber || 'Relative No.'}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">Relation:</label>
+            <input
+              type="text"
+              ref={(el) => (inputRefs.current.relation = el)}
+              className="border border-gray-300 rounded w-full p-2 placeholder-gray-500"
+              disabled
+              placeholder={person?.relation || 'Relation'}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">Occupation:</label>
+            <input
+              type="text"
+              ref={(el) => (inputRefs.current.occupation = el)}
+              className="border border-gray-300 rounded w-full p-2 placeholder-gray-500"
+              disabled
+              placeholder={person?.occupation || 'Occupation'}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-2">No. of People:</label>
+            <input
+              type="number"
+              ref={(el) => (inputRefs.current.numberOfPeople = el)}
+              className="border border-gray-300 rounded w-full p-2 placeholder-gray-500"
+              disabled
+              placeholder={person?.noOfPeople || 'No. of People'}
+            />
+          </div>
+          <div className="col-span-2 flex justify-center">
+            <div className="w-32 h-32 border border-gray-300 rounded bg-gray-100 flex items-center justify-center" onClick={() => { window.open(person?.aadharImage || '', "_blank") }}>
+              <img src={person?.aadharImage || ''} alt='' className="h-full w-full object-cover rounded" />
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="flex gap-x-3">
 
-        
-        <button
-          className="px-7 py-3 bg-blue-500 hover:bg-blue-400 text-lg font-semibold rounded-lg w-full mt-4 text-white"
-          onClick={acceptHandler}
-        >
-          Accept
-        </button>
-        <button
-          className="px-7 py-3 bg-blue-500 hover:bg-blue-400 text-lg font-semibold rounded-lg w-full mt-4 text-white"
-          onClick={rejectHandler}
-        >
-          Reject
-        </button>
-
+        <div className="flex gap-x-4 mt-6">
+          <button
+            className="flex-1 px-5 py-3 bg-blue-600 hover:bg-blue-500 text-lg font-semibold rounded-lg transition duration-200 text-white"
+            onClick={acceptHandler}
+          >
+            Accept
+          </button>
+          <button
+            className="flex-1 px-5 py-3 bg-red-600 hover:bg-red-500 text-lg font-semibold rounded-lg transition duration-200 text-white"
+            onClick={rejectHandler}
+          >
+            Reject
+          </button>
+        </div>
       </div>
     </div>
-  
-  </div>
-  
   );
 };
 

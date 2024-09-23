@@ -1,70 +1,56 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {useDispatch , useSelector} from "react-redux"
-import { setHouseDetails } from "../redux/houseSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { setCurrTenant } from "../redux/requestSlice";
 
 export default function Header({ userType }) {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [navbar, setNavbar] = useState(false);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const user = useSelector((store)=>store.user.isAdmin)
-  
-
-  const navigateToHouseDetails = () => {
-    dispatch(setHouseDetails(null))
-    navigate("/housedetails/:add");
-  };
-
+  const user = useSelector((store) => store.user.isAdmin);
+  const userProfile = useSelector((store) => store.user.tenants);
   const [searchResult, setSearchResult] = useState([]);
 
-  const userProfile =  useSelector((store)=>store.user.tenants);
-  console.log(userProfile)
-  
+  const navigateToHouseDetails = () => {
+    navigate("/addRoom");
+  };
 
- 
+  function logOutHandler(){
+    localStorage.removeItem('token')
+    navigate("/login")
+    window.location.reload()
+  }
 
   const searchUser = (e) => {
     setSearch(e.target.value);
-    
-     
-
-
-let ans = []
-
-      userProfile.forEach(element => {
-        if(element.user.fullName.trim().toLowerCase().includes(search.trim().toLowerCase())){
-          ans.push(element)
-
-        }
-        
-      });
-
-      console.log(ans)
-      setSearchResult(
-          ans
-       
-  )
-    // );
+    const ans = [];
+    userProfile.forEach((element) => {
+      if (
+        element.user.fullName
+          .trim()
+          .toLowerCase()
+          .includes(search.trim().toLowerCase())
+      ) {
+        ans.push(element);
+      }
+    });
+    setSearchResult(ans);
   };
 
   const goToUserProfile = (result) => {
-    dispatch(setCurrTenant(result))
-
+    dispatch(setCurrTenant(result));
     navigate("/tenantprofile");
   };
 
   return (
-    <nav className="w-full bg-gradient-to-bl from-[#3d5a80] to-[#98c1d9] shadow">
+    <nav className="w-full bg-gradient-to-bl from-purple-700 to-purple-400 shadow">
       <div className="justify-between px-4 mx-auto lg:max-w-7xl md:items-center md:flex md:px-8">
-        {!user  ? (
+        {!user ? (
           <>
             <div>
               <div className="flex items-center justify-between py-3 md:py-5 md:block">
-                <a href="">
-                  <h2 className="text-2xl font-bold text-white">LOGO</h2>
-                </a>
+                <h2 className="text-2xl font-bold text-white">LOGO</h2>
                 <div className="md:hidden">
                   <button
                     className="p-2 text-gray-700 rounded-md outline-none focus:border-gray-400 focus:border"
@@ -110,37 +96,26 @@ let ans = []
                 }`}
               >
                 <ul className="items-center justify-center space-y-8 md:flex md:space-x-6 md:space-y-0">
-                  <li className="text-white hover:text-indigo-200">
-                    <a>Home</a>
-                  </li>
-                  <li className="text-white hover:text-indigo-200" onClick={()=>{navigate("pay-rent")}}>
+                  <li className="text-white hover:text-indigo-200">Home</li>
+                  <li
+                    className="text-white hover:text-indigo-200"
+                    onClick={() => {
+                      navigate("pay-rent");
+                    }}
+                  >
                     Pay Rent
                   </li>
-                  <li className="text-white hover:text-indigo-200">
-                    <a>About Us</a>
-                  </li>
-                  <li className="text-white hover:text-indigo-200">
-                    <a>Contact Us</a>
-                  </li>
+                  <li className="text-white hover:text-indigo-200">About Us</li>
+                  <li className="text-white hover:text-indigo-200">Contact Us</li>
                 </ul>
-
                 <div className="mt-3 space-y-2 lg:hidden md:inline-block">
-                 
-                  <button
-                    className="inline-block w-full px-4 py-2 text-center text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
-                  >
+                  <button className="inline-block w-full px-4 py-2 text-center text-gray-800 bg-white rounded-md shadow hover:bg-gray-100">
                     Sign Out
                   </button>
                 </div>
               </div>
             </div>
-            <div className="hidden space-x-2 md:inline-block">
-            <button
-                    className="inline-block w-full px-4 py-2 text-center text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
-                  >
-                    Sign Out
-                  </button>
-            </div>
+           
           </>
         ) : (
           <div className="flex p-3 gap-x-3">
@@ -148,11 +123,11 @@ let ans = []
               <input
                 type="text"
                 placeholder="Search"
-                className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-md"
+                className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-md"
                 value={search}
                 onChange={searchUser}
               />
-              {search !== ""  &&  searchResult.length !== 0 ? (
+              {search !== "" && searchResult.length !== 0 ? (
                 <div className="flex flex-col bg-white absolute border border-gray-300 rounded-md w-full mt-3 h-64 overflow-auto scrollbar-thin scrollbar-webkit">
                   {searchResult.map((result) => (
                     <div
@@ -160,35 +135,44 @@ let ans = []
                       className="flex p-3 justify-start items-center gap-x-3 cursor-pointer"
                       onClick={() => goToUserProfile(result)}
                     >
-                     
                       <p className="text-gray-900">{result.user.fullName}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                search !== "" && <p className=" p-3 bg-white absolute border border-gray-300 rounded-md w-full mt-3 ">No Results Found</p>
+                search !== "" && (
+                  <p className="p-3 bg-white absolute border border-gray-300 rounded-md w-full mt-3">
+                    No Results Found
+                  </p>
+                )
               )}
             </div>
-            <button className="px-7 py-3 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800 cursor-pointer">
+            <button className="px-7 py-3 text-white bg-purple-600 rounded-md shadow hover:bg-purple-800 cursor-pointer">
               Search
             </button>
-           {user && <> <Link
-              to="/requests"
-              className="px-7 py-3 text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
-            >
-              requests
-            </Link>
-            <button
-              className="px-7 py-3 text-white bg-gray-600 rounded-md shadow hover:bg-gray-800 cursor-pointer"
-              onClick={navigateToHouseDetails}
-            >
-              Add Room
-            </button>
-            </>
-} 
+            {user && (
+              <>
+                <Link
+                  to="/requests"
+                  className="px-7 py-3 text-gray-800 bg-white rounded-md shadow hover:bg-gray-100"
+                >
+                  requests
+                </Link>
+                <button
+                  className="px-7 py-3 text-white bg-purple-600 rounded-md shadow hover:bg-purple-800 cursor-pointer"
+                  onClick={navigateToHouseDetails}
+                >
+                  Add Room
+                </button>
+              </>
+            )}
           </div>
         )}
+         <button className="inline-block w-[6rem] px-4 py-2 text-center text-gray-800 bg-white rounded-md shadow hover:bg-gray-100" onClick={logOutHandler}>
+                Log Out
+              </button>
       </div>
+      
     </nav>
   );
 }

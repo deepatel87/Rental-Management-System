@@ -2,10 +2,11 @@ const Room = require('../model/RoomDetails');
 const User = require("../model/User") ;
 const Admin = require("../model/Admin")
 const {uploadImageToCloudinary} = require("../utils/imageUploader")
+const Request = require("../model/Request")
 
 exports.createRoom = async (req, res) => {
     try {
-        const { type, rent, additionalDetails  , details , address} = req.body;
+        const { type, price, additionalDetails  , details , address} = req.body;
         console.log(req.files)
 
         
@@ -19,7 +20,7 @@ exports.createRoom = async (req, res) => {
 
         const newRoom = new Room({
             type,
-            rent,
+            rent:price,
             additionalDetails ,
             details , 
             address ,
@@ -144,12 +145,18 @@ exports.removeTenantFromRoom = async (req, res) => {
 exports.deleteRoom = async (req, res) => {
     try {
         const { roomId } = req.body;
+        console.log(roomId)
 
         const deletedRoom = await Room.findByIdAndDelete(roomId);
 
         if (!deletedRoom) {
             return res.status(404).json({ message: "Room not found" });
         }
+
+        await Request.deleteMany({ houseId: roomId });
+
+
+
 
         res.status(200).json({ message: "Room deleted successfully" });
     } catch (err) {

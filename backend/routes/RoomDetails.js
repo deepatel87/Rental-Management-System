@@ -14,7 +14,7 @@ const {
 router.post("/addRoom", createRoom);
 router.post("/updateRoom", updateRoom);
 router.post("/removeTenantFromRoom", removeTenantFromRoom);
-router.post("/deleteRoom", deleteRoom);
+router.delete("/deleteRoom", deleteRoom);
 router.post("/sendRequest", sendRequest);
 router.post("/payRent", updateRentStatus);
 

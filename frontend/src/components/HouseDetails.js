@@ -1,18 +1,17 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { addHouse } from "../redux/houseSlice";
+import { addHouse, removeHouse } from "../redux/houseSlice";
 
 const HouseDetails = () => {
   const houseData = useSelector((store) => store.house.houseDetails);
-  const user = useSelector((store) => store.user.user);
   const isAdmin = useSelector((store) => store.user.isAdmin);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  console.log(houseData)
 
   const { params } = useParams();
-  let name = decodeURIComponent(params);
-  name = name.substring(1);
+  let name = decodeURIComponent(params).substring(1);
 
   const [formValues, setFormValues] = useState({
     name: "",
@@ -20,7 +19,7 @@ const HouseDetails = () => {
     address: "",
     price: "",
     additionalDetails: "",
-    image: null
+    image: null,
   });
 
   const [imagePreview, setImagePreview] = useState(null);
@@ -33,11 +32,11 @@ const HouseDetails = () => {
         address: houseData.house_address || "",
         price: houseData.house_price || "",
         additionalDetails: houseData.additional_details || "",
-        image: null
+        image: null,
       });
       setImagePreview(houseData.image_url || null);
     }
-  }, []);
+  }, [houseData, name]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -79,7 +78,6 @@ const HouseDetails = () => {
 
     if (resp.success) {
       console.log("Room details updated successfully");
-      console.log(resp.data)
       dispatch(addHouse(resp.data));
       navigate("/");
     } else {
@@ -87,121 +85,75 @@ const HouseDetails = () => {
     }
   }
 
+  const deleteHandler = async () => {
+    const response = await fetch(`http://localhost:4000/api/v1/room/deleteRoom`, {
+      method: 'delete',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roomId:houseData._id})
+    });
+
+    const resp = await response.json();
+
+    if (resp.success) {
+      console.log("Room deleted successfully");
+      dispatch(removeHouse(houseData._id));
+      navigate("/");
+    } else {
+      console.log(resp);
+    }
+  };
+
   return (
-    <div className="w-full min-h-screen">
-      {!isAdmin ? (
-        <div className="w-full min-h-screen flex flex-col bg-gray-100 p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              {imagePreview && (
-                <img src={imagePreview} alt="House" className="w-full h-64 object-cover rounded-lg mb-4" />
-              )}
-              <h1 className="text-4xl font-bold text-purple-700 mb-4">
-                {houseData.type}
-              </h1>
-              <p className="text-xl text-gray-700 mb-6">
-                {houseData.details}
-              </p>
-              <p className="text-xl text-gray-700 mb-6">
-                {houseData.additionalDetails}
-              </p>
-              <div className="bg-teal-200 p-4 rounded-lg mb-6">
-                <span className="text-3xl font-bold text-teal-800">
-                  ₹{houseData.rent}
-                </span>
-                <span className="text-teal-700 ml-2 text-lg">per month</span>
-              </div>
-              <button
-                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 rounded-full hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 w-full"
-                onClick={goToSendRequest}
-              >
-                Get Now
-              </button>
+    <div className="w-full min-h-screen bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center p-8">
+      <div className="w-full max-w-3xl bg-white rounded-lg shadow-xl p-6 overflow-hidden">
+        {!isAdmin ? (
+          <div>
+            {imagePreview && (
+              <img src={imagePreview} alt="House" className="w-full h-64 object-cover rounded-lg mb-8 shadow-md" />
+            )}
+            <div className="flex flex-col items-center space-y-4">
+              <h1 className="text-4xl font-bold text-purple-800">{houseData?.type}</h1>
+              <p className="text-xl text-gray-700">{houseData?.details}</p>
+              <p className="text-xl text-gray-700">{houseData.additionalDetails}</p>
+            </div>
+            <div className="bg-teal-200 p-4 rounded-lg mb-8 mt-8 shadow-md">
+              <h2 className="text-2xl font-bold text-teal-800">Price</h2>
+              <span className="text-4xl font-bold text-teal-800">₹{houseData.rent}</span>
+              <span className="text-teal-700 ml-2 text-lg">per month</span>
+            </div>
+            <button
+              onClick={goToSendRequest}
+              className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 rounded-full hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 w-full"
+            >
+              Get Now
+            </button>
+            <div className="mt-12">
+              <h2 className="text-3xl font-bold text-gray-800 mb-6">Additional Details</h2>
+                  <p>{houseData.additionalDetails}</p>
             </div>
           </div>
-
-          <div className="mt-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">
-              Additional Details
-            </h2>
-            <ul className="list-disc list-inside text-lg text-gray-700 space-y-4">
-              {houseData?.additional_details}
-            </ul>
+        ) : (
+          <div className="flex flex-col space-y-8">
+            <h1 className="text-4xl font-bold text-purple-800">{houseData.type}</h1>
+            <p className="text-xl text-gray-700">{houseData.details}</p>
+            <p className="text-xl text-gray-700">{houseData.additionalDetails}</p>
+            <div className="bg-teal-200 p-4 rounded-lg shadow-md">
+              <h2 className="text-2xl font-bold text-teal-800">Price</h2>
+              <span className="text-4xl font-bold text-teal-800">₹{houseData.rent}</span>
+              <span className="text-teal-700 ml-2 text-lg">per month</span>
+            </div>
+            <img src={houseData.image} alt="House" className="w-full h-64 object-cover rounded-lg shadow-md" />
+            <button
+              onClick={deleteHandler}
+              className="bg-red-600 text-white px-6 py-3 rounded-full hover:bg-red-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 w-full mt-8"
+            >
+              Delete House
+            </button>
           </div>
-        </div>
-      ) : (
-        <div className="w-11/12 p-10">
-          <input
-            type="text"
-            name="name"
-            placeholder={houseData ? houseData.type : "Enter House Type"}
-            value={formValues.name}
-            onChange={handleChange}
-            className="border border-gray-300 rounded w-full p-2 text-4xl font-bold text-purple-700 mb-4"
-          />
-
-          <textarea
-            name="details"
-            placeholder={houseData ? houseData.details : "Enter House Details"}
-            value={formValues.details}
-            onChange={handleChange}
-            className="border border-gray-300 rounded w-full p-2 text-xl text-gray-700 mb-6"
-          ></textarea>
-
-          <input
-            type="text"
-            name="address"
-            placeholder={houseData ? houseData.address : "Enter Address"}
-            value={formValues.address}
-            onChange={handleChange}
-            className="border border-gray-300 rounded w-full p-2 text-xl text-gray-700 mb-6"
-          />
-
-          <div className="bg-teal-200 p-4 rounded-lg mb-6">
-            <input
-              type="number"
-              name="price"
-              placeholder={houseData ? houseData.rent : "Enter Price"}
-              value={formValues.price}
-              onChange={handleChange}
-              className="border-none bg-transparent text-3xl font-bold text-teal-800 w-full"
-            />
-            <span className="text-teal-700 ml-2 text-lg">per month</span>
-          </div>
-
-          <textarea
-            name="additionalDetails"
-            placeholder={houseData ? houseData.additionalDetails : "Enter Additional Details"}
-            value={formValues.additionalDetails}
-            onChange={handleChange}
-            className="border border-gray-300 rounded w-full p-2 text-xl text-gray-700 mb-6"
-          ></textarea>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
-              Upload Image
-            </label>
-            <input
-              type="file"
-              name="image"
-              id="image"
-              accept="image/*"
-              onChange={handleChange}
-              className="border border-gray-300 rounded w-full p-2"
-            />
-            {imagePreview && (
-              <img src={imagePreview} alt="Preview" className="mt-2 w-64 h-64 object-cover rounded" />
-            )}
-          </div>
-
-          <button
-            onClick={edithandler}
-            className="bg-gradient-to-r from-purple-500 capitalize to-indigo-600 text-white px-6 py-3 rounded-full hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 w-full"
-          >
-            {name === "edit" ? "Update" : "Add House"}
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

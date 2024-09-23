@@ -34,6 +34,7 @@ const Login = () => {
     const resp = await response.json();
 
     if (resp.success) {
+      console.log(resp)
       localStorage.setItem('db_token', resp.token);
       dispatch(setHouses(resp.roomDetails));
       navigate('/');
@@ -82,9 +83,7 @@ const Login = () => {
             }}
             className="w-full px-3 py-2 mt-1 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
           />
-          <div className="mt-2 text-sm text-right">
-            <p className="text-purple-600 hover:underline cursor-pointer">Forgot password?</p>
-          </div>
+         
         </div>
         <div>
           <button
@@ -99,15 +98,9 @@ const Login = () => {
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300"></div>
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 text-gray-500 bg-white">OR</span>
-          </div>
+        
         </div>
-        <div>
-          <button className="w-full px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700">
-            Sign in with Google
-          </button>
-        </div>
+        
         <div className="mt-6 text-center text-gray-600">
           <p>
             Don't have an account?{' '}
