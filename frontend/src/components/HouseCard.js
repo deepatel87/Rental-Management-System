@@ -23,7 +23,7 @@ const HouseCard = ({ houseData }) => {
         <h2 className="text-2xl font-bold text-purple-700 mb-2">
           {houseData?.type}
         </h2>
-        <p className="text-gray-600 mb-4">{houseData?.details}</p>
+        <p className="text-gray-600 mb-4">{houseData?.address}</p>
         <div className="flex justify-between items-center mt-4">
           <span className="text-2xl font-extrabold text-purple-600">
             ₹{houseData?.rent}
